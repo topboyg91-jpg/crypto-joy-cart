@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { InfoCard, InfoPage, useSettings } from "@/components/site-chrome";
+import { EditablePage } from "@/components/editable-page";
 import { categoriesQuery } from "@/lib/store";
 
 export const Route = createFileRoute("/about")({
@@ -16,6 +17,14 @@ export const Route = createFileRoute("/about")({
 });
 
 function AboutPage() {
+  return (
+    <EditablePage slug="about" title="About us">
+      <AboutDefault />
+    </EditablePage>
+  );
+}
+
+function AboutDefault() {
   const settings = useSettings();
   const { data: categories } = useQuery(categoriesQuery);
   const groups = [...new Set((categories ?? []).map((c) => c.group_label))];

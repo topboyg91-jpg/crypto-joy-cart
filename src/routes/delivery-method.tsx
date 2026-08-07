@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { InfoCard, InfoPage } from "@/components/site-chrome";
+import { EditablePage } from "@/components/editable-page";
 import { shippingOptionsQuery, money } from "@/lib/store";
 
 export const Route = createFileRoute("/delivery-method")({
@@ -16,6 +17,14 @@ export const Route = createFileRoute("/delivery-method")({
 });
 
 function DeliveryMethodPage() {
+  return (
+    <EditablePage slug="delivery-method" title="Delivery method">
+      <DeliveryMethodDefault />
+    </EditablePage>
+  );
+}
+
+function DeliveryMethodDefault() {
   const { data: options } = useQuery(shippingOptionsQuery);
 
   return (
