@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { InfoCard, InfoPage } from "@/components/site-chrome";
+import { EditablePage } from "@/components/editable-page";
 import { paymentMethodsQuery } from "@/lib/store";
 
 export const Route = createFileRoute("/payment-and-delivery")({
@@ -19,6 +20,14 @@ export const Route = createFileRoute("/payment-and-delivery")({
 });
 
 function PaymentAndDelivery() {
+  return (
+    <EditablePage slug="payment-and-delivery" title="Payment and delivery">
+      <PaymentAndDeliveryDefault />
+    </EditablePage>
+  );
+}
+
+function PaymentAndDeliveryDefault() {
   const { data: methods } = useQuery(paymentMethodsQuery);
   const enabled = (methods ?? []).filter((m) => m.is_enabled);
 

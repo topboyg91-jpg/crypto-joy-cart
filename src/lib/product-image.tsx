@@ -4,10 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const STORAGE_BUCKET = "product-images";
 const LEGACY_PREFIX = "/api/public/product-image/";
-
-/** Object-URL cache so the same image is only downloaded once per session. */
-const objectUrlCache = new Map<string, string>();
-const inFlight = new Map<string, Promise<string | null>>();
+const SIGNED_TTL = 60 * 60 * 24 * 7; // one week
+const CACHE_KEY = "gramory:img-urls";
 
 /** `storage:<path>` (or the legacy API path) → a path inside the images bucket. */
 export function storagePath(raw: string | null | undefined): string | null {
@@ -18,22 +16,91 @@ export function storagePath(raw: string | null | undefined): string | null {
   return null;
 }
 
-async function loadFromStorage(path: string): Promise<string | null> {
-  const cached = objectUrlCache.get(path);
-  if (cached) return cached;
-  const pending = inFlight.get(path);
-  if (pending) return pending;
+/**
+ * Signed-URL cache. The browser can then fetch, cache and decode images itself
+ * (in parallel, straight from the CDN) instead of us downloading blobs in JS.
+ * URLs survive reloads via sessionStorage, so repeat views are instant.
+ */
+type CacheEntry = { url: string; expires: number };
+const urlCache = new Map<string, CacheEntry>();
+const waiters = new Map<string, ((url: string | null) => void)[]>();
+let queue: string[] = [];
+let flushing = false;
 
-  const task = (async () => {
-    const { data, error } = await supabase.storage.from(STORAGE_BUCKET).download(path);
-    if (error || !data) return null;
-    const objectUrl = URL.createObjectURL(data);
-    objectUrlCache.set(path, objectUrl);
-    return objectUrl;
-  })().finally(() => inFlight.delete(path));
+function readPersisted() {
+  if (typeof sessionStorage === "undefined" || urlCache.size) return;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return;
+    for (const [path, entry] of Object.entries(JSON.parse(raw) as Record<string, CacheEntry>)) {
+      if (entry?.expires > Date.now()) urlCache.set(path, entry);
+    }
+  } catch {
+    /* ignore corrupt cache */
+  }
+}
 
-  inFlight.set(path, task);
-  return task;
+function persist() {
+  if (typeof sessionStorage === "undefined") return;
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(Object.fromEntries(urlCache)));
+  } catch {
+    /* quota or private mode — cache stays in memory only */
+  }
+}
+
+function cachedUrl(path: string): string | null {
+  readPersisted();
+  const hit = urlCache.get(path);
+  return hit && hit.expires > Date.now() ? hit.url : null;
+}
+
+async function flushQueue() {
+  flushing = false;
+  const paths = [...new Set(queue)];
+  queue = [];
+  if (paths.length === 0) return;
+
+  // One round-trip for every image on the page instead of one per image.
+  const { data } = await supabase.storage.from(STORAGE_BUCKET).createSignedUrls(paths, SIGNED_TTL);
+  const expires = Date.now() + (SIGNED_TTL - 300) * 1000;
+  const resolved = new Map<string, string>();
+  for (const row of data ?? []) {
+    if (row.signedUrl && row.path) resolved.set(row.path, row.signedUrl);
+  }
+  for (const path of paths) {
+    const url = resolved.get(path) ?? null;
+    if (url) urlCache.set(path, { url, expires });
+    waiters.get(path)?.forEach((fn) => fn(url));
+    waiters.delete(path);
+  }
+  persist();
+}
+
+function signedUrl(path: string): Promise<string | null> {
+  const hit = cachedUrl(path);
+  if (hit) return Promise.resolve(hit);
+  return new Promise((resolve) => {
+    const list = waiters.get(path) ?? [];
+    list.push(resolve);
+    waiters.set(path, list);
+    queue.push(path);
+    if (!flushing) {
+      flushing = true;
+      queueMicrotask(() => void flushQueue());
+    }
+  });
+}
+
+/**
+ * Warm the cache for a whole catalogue in a single request, so images are
+ * already resolved by the time the cards paint.
+ */
+export function prefetchImages(sources: (string | null | undefined)[]) {
+  for (const src of sources) {
+    const path = storagePath(src);
+    if (path && !cachedUrl(path)) void signedUrl(path);
+  }
 }
 
 /**
@@ -78,22 +145,25 @@ export function ProductImage({
   src,
   name,
   className = "",
+  priority = false,
 }: {
   src: string | null | undefined;
   name: string;
   className?: string;
+  /** Set on above-the-fold images so the browser fetches them immediately. */
+  priority?: boolean;
 }) {
   const path = storagePath(src);
   const direct = resolveImageUrl(src);
   const [failed, setFailed] = useState(false);
-  const [objectUrl, setObjectUrl] = useState<string | null>(() => (path ? (objectUrlCache.get(path) ?? null) : null));
+  const [remoteUrl, setRemoteUrl] = useState<string | null>(() => (path ? cachedUrl(path) : null));
 
   useEffect(() => {
-    if (!path || objectUrlCache.get(path)) return;
+    if (!path || cachedUrl(path)) return;
     let active = true;
-    void loadFromStorage(path).then((url) => {
+    void signedUrl(path).then((url) => {
       if (!active) return;
-      if (url) setObjectUrl(url);
+      if (url) setRemoteUrl(url);
       else setFailed(true);
     });
     return () => {
@@ -101,7 +171,7 @@ export function ProductImage({
     };
   }, [path]);
 
-  const resolved = path ? objectUrl : direct;
+  const resolved = path ? (remoteUrl ?? cachedUrl(path)) : direct;
 
   if (!resolved || failed) {
     return <span className={className} style={{ background: productGradient(name) }} aria-hidden="true" />;
@@ -111,7 +181,9 @@ export function ProductImage({
     <img
       src={resolved}
       alt={name}
-      loading="lazy"
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : "auto"}
       onError={() => setFailed(true)}
       className={`${className} object-cover`}
     />

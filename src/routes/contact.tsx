@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Mail } from "lucide-react";
-import { PageBackground, useSettings } from "@/components/site-chrome";
+import { useQuery } from "@tanstack/react-query";
+import { PageBackground, RichText, useSettings } from "@/components/site-chrome";
+import { contentPagesQuery } from "@/lib/store";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -17,6 +19,8 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   const settings = useSettings();
+  const { data: pages } = useQuery(contentPagesQuery);
+  const page = (pages ?? []).find((p) => p.slug === "contact");
   const [form, setForm] = useState({ name: "", email: "", orderId: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sent, setSent] = useState(false);
@@ -39,7 +43,12 @@ function ContactPage() {
   return (
     <PageBackground>
       <main className="mx-auto max-w-3xl px-6 py-12">
-        <h2 className="text-3xl font-bold text-primary">Contact us</h2>
+        <h2 className="text-3xl font-bold text-primary">{page?.title || "Contact us"}</h2>
+        {page?.body?.trim() && (
+          <div className="mt-4">
+            <RichText body={page.body} />
+          </div>
+        )}
         <p className="mt-3 text-foreground/70 flex items-center gap-2">
           <Mail className="h-4 w-4" /> {settings.contact_email ?? ""}
         </p>

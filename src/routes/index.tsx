@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { PageWithSidebar, useSettings } from "@/components/site-chrome";
-import { ProductImage } from "@/lib/product-image";
+import { ProductImage, prefetchImages } from "@/lib/product-image";
 import { categoriesQuery, priceRange, productsQuery } from "@/lib/store";
 
 type ShopSearch = { q?: string; category?: string };
@@ -42,6 +42,9 @@ function ShopPage() {
     .filter((p) => (activeCategory ? p.category_id === activeCategory.id : true))
     .filter((p) => (term ? `${p.name} ${p.description}`.toLowerCase().includes(term) : true));
 
+  // Resolve every image URL in one round-trip as soon as the catalogue arrives.
+  prefetchImages((products ?? []).map((p) => p.image_url));
+
   return (
     <PageWithSidebar>
       <h2 className="text-3xl font-bold text-primary">{activeCategory ? activeCategory.name : "All products"}</h2>
@@ -57,14 +60,19 @@ function ShopPage() {
       )}
 
       <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-6">
-        {visible.map((p) => (
+        {visible.map((p, i) => (
           <Link
             key={p.id}
             to="/product/$slug"
             params={{ slug: p.slug }}
             className="bg-card/95 border border-border rounded p-3 text-center hover:shadow-lg transition"
           >
-            <ProductImage src={p.image_url} name={p.name} className="block w-full aspect-[4/3] rounded mb-3" />
+            <ProductImage
+              src={p.image_url}
+              name={p.name}
+              priority={i < 6}
+              className="block w-full aspect-[4/3] rounded mb-3"
+            />
             <h3 className="text-primary font-semibold text-sm leading-tight">{p.name}</h3>
             <p className="text-xs text-muted-foreground mt-1">{priceRange(p, symbol)}</p>
           </Link>
