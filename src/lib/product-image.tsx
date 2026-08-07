@@ -93,6 +93,17 @@ function signedUrl(path: string): Promise<string | null> {
 }
 
 /**
+ * Warm the cache for a whole catalogue in a single request, so images are
+ * already resolved by the time the cards paint.
+ */
+export function prefetchImages(sources: (string | null | undefined)[]) {
+  for (const src of sources) {
+    const path = storagePath(src);
+    if (path && !cachedUrl(path)) void signedUrl(path);
+  }
+}
+
+/**
  * Turns a pasted share link into something an <img> can actually load.
  * Hosts like ibb.co, imgur or Google Drive hand out page links, not files.
  */
