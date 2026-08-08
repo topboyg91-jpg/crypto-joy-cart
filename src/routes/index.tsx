@@ -13,12 +13,12 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "Shop — specialty coffee, tea & spice by the gram" },
+      { title: "Drugs — apothecary coffee, tea & spice by the gram" },
       {
         name: "description",
         content: "Browse single-origin coffee, loose-leaf tea and whole spices priced by the gram, with crypto checkout.",
       },
-      { property: "og:title", content: "Shop — specialty coffee, tea & spice by the gram" },
+      { property: "og:title", content: "Drugs — apothecary coffee, tea & spice by the gram" },
       { property: "og:description", content: "Order by the gram with worldwide shipping." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
