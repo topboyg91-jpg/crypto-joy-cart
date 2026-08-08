@@ -76,13 +76,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gramory — Specialty Coffee, Tea & Spices by the Gram" },
+      { title: "Drugs — Apothecary Coffee, Tea & Spices by the Gram" },
       {
         name: "description",
         content:
           "Single-origin coffee, loose-leaf tea and whole spices sold by the gram. Crypto checkout, flat-rate shipping.",
       },
-      { property: "og:title", content: "Gramory — Specialty Coffee, Tea & Spices" },
+      { property: "og:title", content: "Drugs — Apothecary Coffee, Tea & Spices" },
       {
         property: "og:description",
         content: "Single-origin coffee, loose-leaf tea and whole spices sold by the gram.",
@@ -102,8 +102,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "/fonts/pacifico-latin.woff2",
         crossOrigin: "anonymous",
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "apple-touch-icon", href: "/favicon.png" },
+      { rel: "icon", href: "/favicon.png?v=2", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/favicon.png?v=2" },
     ],
   }),
   shellComponent: RootShell,
