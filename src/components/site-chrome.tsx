@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Mail, Search, ShoppingCart } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { isAdminUnlocked } from "@/lib/admin-gate";
 import leavesBg from "@/assets/leaves-bg.jpg";
 import { useCart } from "@/lib/cart";
 import { ProductImage } from "@/lib/product-image";
@@ -13,6 +14,20 @@ import {
   settingsMap,
   settingsQuery,
 } from "@/lib/store";
+
+const NAV = [
+
+/** Admin link only appears once this browser has unlocked the admin password. */
+function AdminFooterLink() {
+  const [show, setShow] = useState(false);
+  useEffect(() => setShow(isAdminUnlocked()), []);
+  if (!show) return null;
+  return (
+    <Link to="/admin" className="text-primary hover:underline">
+      Admin
+    </Link>
+  );
+}
 
 const NAV = [
   { label: "HOME", to: "/" },
