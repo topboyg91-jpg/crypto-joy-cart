@@ -236,9 +236,7 @@ export function SiteFooter() {
           <Link to="/order-tracking" className="text-primary hover:underline">
             Track order
           </Link>
-          <Link to="/admin" className="text-primary hover:underline">
-            Admin
-          </Link>
+          <AdminFooterLink />
         </div>
       </div>
     </footer>
