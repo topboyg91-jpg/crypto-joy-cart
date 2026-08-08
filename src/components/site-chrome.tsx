@@ -15,8 +15,6 @@ import {
   settingsQuery,
 } from "@/lib/store";
 
-const NAV = [
-
 /** Admin link only appears once this browser has unlocked the admin password. */
 function AdminFooterLink() {
   const [show, setShow] = useState(false);
