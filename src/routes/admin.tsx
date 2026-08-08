@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { EntityTable, useTableMutations } from "@/components/admin/entity-table";
 import { PageBackground } from "@/components/site-chrome";
+import { AdminGate, lockAdmin } from "@/lib/admin-gate";
 import {
   categoriesQuery,
   contentPagesQuery,
@@ -28,20 +29,39 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
+function AdminPage() {
+  return (
+    <AdminGate>
+      <AdminPanel />
+    </AdminGate>
+  );
+}
+
 const TABS = ["Products", "Categories", "Payments", "Shipping", "Settings", "Pages", "Orders"] as const;
 type Tab = (typeof TABS)[number];
 
-function AdminPage() {
+function AdminPanel() {
   const [tab, setTab] = useState<Tab>("Products");
 
   return (
     <PageBackground>
       <main className="mx-auto max-w-6xl px-6 py-10">
-        <header>
-          <h2 className="text-3xl font-bold text-primary">Store admin</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Signed in automatically — every field below writes straight to the live store.
-          </p>
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-primary">Store admin</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every field below writes straight to the live store.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              lockAdmin();
+              window.location.reload();
+            }}
+            className="text-sm text-muted-foreground hover:text-primary underline"
+          >
+            Lock
+          </button>
         </header>
 
         <nav className="mt-6 flex flex-wrap gap-2">
