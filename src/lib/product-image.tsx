@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { productGradient } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
+import imageManifest from "@/generated/image-manifest.json";
 
 const STORAGE_BUCKET = "product-images";
 const LEGACY_PREFIX = "/api/public/product-image/";
@@ -96,10 +97,17 @@ function signedUrl(path: string): Promise<string | null> {
  * Warm the cache for a whole catalogue in a single request, so images are
  * already resolved by the time the cards paint.
  */
+/** Images baked into the build (see scripts/bake-images.mjs) — served as static files. */
+const baked = imageManifest as Record<string, string>;
+
+function bakedUrl(path: string | null): string | null {
+  return path ? (baked[path] ?? null) : null;
+}
+
 export function prefetchImages(sources: (string | null | undefined)[]) {
   for (const src of sources) {
     const path = storagePath(src);
-    if (path && !cachedUrl(path)) void signedUrl(path);
+    if (path && !bakedUrl(path) && !cachedUrl(path)) void signedUrl(path);
   }
 }
 
@@ -155,11 +163,12 @@ export function ProductImage({
 }) {
   const path = storagePath(src);
   const direct = resolveImageUrl(src);
+  const staticUrl = bakedUrl(path);
   const [failed, setFailed] = useState(false);
   const [remoteUrl, setRemoteUrl] = useState<string | null>(() => (path ? cachedUrl(path) : null));
 
   useEffect(() => {
-    if (!path || cachedUrl(path)) return;
+    if (!path || bakedUrl(path) || cachedUrl(path)) return;
     let active = true;
     void signedUrl(path).then((url) => {
       if (!active) return;
@@ -171,7 +180,7 @@ export function ProductImage({
     };
   }, [path]);
 
-  const resolved = path ? (remoteUrl ?? cachedUrl(path)) : direct;
+  const resolved = staticUrl ?? (path ? (remoteUrl ?? cachedUrl(path)) : direct);
 
   if (!resolved || failed) {
     return <span className={className} style={{ background: productGradient(name) }} aria-hidden="true" />;
