@@ -7,8 +7,8 @@ import { AdminGate, lockAdmin } from "@/lib/admin-gate";
 import {
   categoriesQuery,
   contentPagesQuery,
-  gramsLabel,
   money,
+  unitLabel,
   ordersQuery,
   paymentMethodsQuery,
   productsQuery,
