@@ -14,6 +14,7 @@ export type ProductPrice = {
   id: string;
   product_id: string;
   grams: number;
+  unit_label: string;
   price: number;
   sort_order: number;
 };
@@ -183,6 +184,12 @@ export function money(value: number, symbol = "$"): string {
 
 export function gramsLabel(grams: number): string {
   return grams >= 1000 ? `${grams / 1000}kg` : `${grams}g`;
+}
+
+/** Label for a price tier: a custom unit ("1 piece", "6-pack") when set, otherwise the weight. */
+export function unitLabel(grams: number, label?: string | null): string {
+  const trimmed = (label ?? "").trim();
+  return trimmed || gramsLabel(Number(grams) || 0);
 }
 
 export function priceRange(product: Product, symbol = "$"): string {

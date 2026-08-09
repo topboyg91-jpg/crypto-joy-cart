@@ -7,8 +7,8 @@ import { AdminGate, lockAdmin } from "@/lib/admin-gate";
 import {
   categoriesQuery,
   contentPagesQuery,
-  gramsLabel,
   money,
+  unitLabel,
   ordersQuery,
   paymentMethodsQuery,
   productsQuery,
@@ -153,21 +153,28 @@ function PricesTable({
 }: {
   productId: string;
   name: string;
-  prices: { id: string; grams: number; price: number; sort_order: number }[];
+  prices: { id: string; grams: number; unit_label?: string | null; price: number; sort_order: number }[];
 }) {
   return (
     <EntityTable
       title={name}
-      description={`${prices.length} weight tiers — grams and the price charged for that weight.`}
+      description={`${prices.length} price tiers — set grams for weight-based items, or type a unit label (e.g. "1 piece", "6-pack") for items sold by number.`}
       table="product_prices"
-      rows={prices.map((pr) => ({ id: pr.id, grams: pr.grams, price: pr.price, sort_order: pr.sort_order }))}
+      rows={prices.map((pr) => ({
+        id: pr.id,
+        grams: pr.grams,
+        unit_label: pr.unit_label ?? "",
+        price: pr.price,
+        sort_order: pr.sort_order,
+      }))}
       columns={[
         { key: "grams", label: "Grams", type: "number", width: "7rem" },
+        { key: "unit_label", label: "Unit label", type: "text", width: "9rem" },
         { key: "price", label: "Price", type: "number", width: "7rem" },
         { key: "sort_order", label: "Order", type: "number", width: "5rem" },
       ]}
       queryKeys={[["products"]]}
-      newRowDefaults={{ product_id: productId, grams: 0, price: 0, sort_order: prices.length + 1 }}
+      newRowDefaults={{ product_id: productId, grams: 0, unit_label: "", price: 0, sort_order: prices.length + 1 }}
     />
   );
 }
@@ -382,7 +389,16 @@ function OrderDetails({ id }: { id: string }) {
         .from("order_items")
         .select("*")
         .eq("order_id", id)
-        .returns<{ id: string; product_name: string; grams: number; quantity: number; unit_price: number }[]>();
+        .returns<
+          {
+            id: string;
+            product_name: string;
+            grams: number;
+            unit_label: string | null;
+            quantity: number;
+            unit_price: number;
+          }[]
+        >();
       if (error) throw error;
       return data ?? [];
     },
@@ -430,7 +446,8 @@ function OrderDetails({ id }: { id: string }) {
       <ul className="list-disc pl-5">
         {(items ?? []).map((i) => (
           <li key={i.id}>
-            {i.product_name} — {gramsLabel(i.grams)} × {i.quantity} — {money(Number(i.unit_price) * i.quantity)}
+            {i.product_name} — {unitLabel(i.grams, i.unit_label)} × {i.quantity} —{" "}
+            {money(Number(i.unit_price) * i.quantity)}
           </li>
         ))}
       </ul>

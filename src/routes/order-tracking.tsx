@@ -4,9 +4,17 @@ import { PageWithSidebar, useSettings } from "@/components/site-chrome";
 import { CopyableAddress, PaymentQr } from "@/components/crypto-payment";
 import { PaymentConfirmForm } from "@/components/payment-confirm";
 import { supabase } from "@/integrations/supabase/client";
-import { gramsLabel, money, type OrderRow } from "@/lib/store";
+import { money, unitLabel, type OrderRow } from "@/lib/store";
 
-type Item = { id: string; product_name: string; grams: number; unit_price: number; quantity: number; line_total: number };
+type Item = {
+  id: string;
+  product_name: string;
+  grams: number;
+  unit_label?: string | null;
+  unit_price: number;
+  quantity: number;
+  line_total: number;
+};
 
 export const Route = createFileRoute("/order-tracking")({
   head: () => ({
@@ -105,7 +113,7 @@ function OrderTrackingPage() {
               {items.map((i) => (
                 <tr key={i.id} className="border-t border-border">
                   <td className="px-3 py-2">{i.product_name}</td>
-                  <td className="px-3 py-2">{gramsLabel(Number(i.grams))}</td>
+                  <td className="px-3 py-2">{unitLabel(Number(i.grams), i.unit_label)}</td>
                   <td className="px-3 py-2">{i.quantity}</td>
                   <td className="px-3 py-2">{money(Number(i.line_total), symbol)}</td>
                 </tr>
