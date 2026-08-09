@@ -6,6 +6,7 @@ export type CartItem = {
   slug: string;
   name: string;
   grams: number;
+  unitLabel?: string;
   price: number;
   quantity: number;
 };
@@ -132,6 +133,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         order_id: (order as { id: string }).id,
         product_name: i.name,
         grams: i.grams,
+        unit_label: i.unitLabel ?? "",
         unit_price: i.price,
         quantity: i.quantity,
         line_total: i.price * i.quantity,
