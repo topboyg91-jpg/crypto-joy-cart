@@ -206,6 +206,7 @@ export type Database = {
           price: number
           product_id: string
           sort_order: number
+          unit_label: string
         }
         Insert: {
           grams: number
@@ -213,6 +214,7 @@ export type Database = {
           price: number
           product_id: string
           sort_order?: number
+          unit_label?: string
         }
         Update: {
           grams?: number
@@ -220,6 +222,7 @@ export type Database = {
           price?: number
           product_id?: string
           sort_order?: number
+          unit_label?: string
         }
         Relationships: [
           {
