@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { EntityTable, useTableMutations } from "@/components/admin/entity-table";
+import { PriceEditor } from "@/components/admin/price-editor";
 import { PageBackground } from "@/components/site-chrome";
 import { AdminGate, lockAdmin } from "@/lib/admin-gate";
 import {
@@ -37,11 +38,11 @@ function AdminPage() {
   );
 }
 
-const TABS = ["Products", "Categories", "Payments", "Shipping", "Settings", "Pages", "Orders"] as const;
+const TABS = ["Prices", "Products", "Categories", "Payments", "Shipping", "Settings", "Pages", "Orders"] as const;
 type Tab = (typeof TABS)[number];
 
 function AdminPanel() {
-  const [tab, setTab] = useState<Tab>("Products");
+  const [tab, setTab] = useState<Tab>("Prices");
 
   return (
     <PageBackground>
@@ -81,6 +82,7 @@ function AdminPanel() {
         </nav>
 
         <div className="mt-6 space-y-6">
+          {tab === "Prices" && <PriceEditor />}
           {tab === "Products" && <ProductsPanel />}
           {tab === "Categories" && <CategoriesPanel />}
           {tab === "Payments" && <PaymentsPanel />}
@@ -103,7 +105,7 @@ function ProductsPanel() {
     <>
       <EntityTable
         title="Products"
-        description="Name, description and category. Prices per gram tier are managed below each product."
+        description="Name, description and category. Prices live in the Prices tab."
         table="products"
         rows={(products ?? []).map((p) => ({
           id: p.id,
@@ -135,47 +137,7 @@ function ProductsPanel() {
           sort_order: (products?.length ?? 0) + 1,
         }}
       />
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-primary">Gram pricing</h3>
-        {(products ?? []).map((p) => (
-          <PricesTable key={p.id} productId={p.id} name={p.name} prices={p.product_prices} />
-        ))}
-      </div>
     </>
-  );
-}
-
-function PricesTable({
-  productId,
-  name,
-  prices,
-}: {
-  productId: string;
-  name: string;
-  prices: { id: string; grams: number; unit_label?: string | null; price: number; sort_order: number }[];
-}) {
-  return (
-    <EntityTable
-      title={name}
-      description={`${prices.length} price tiers — set grams for weight-based items, or type a unit label (e.g. "1 piece", "6-pack") for items sold by number.`}
-      table="product_prices"
-      rows={prices.map((pr) => ({
-        id: pr.id,
-        grams: pr.grams,
-        unit_label: pr.unit_label ?? "",
-        price: pr.price,
-        sort_order: pr.sort_order,
-      }))}
-      columns={[
-        { key: "grams", label: "Grams", type: "number", width: "7rem" },
-        { key: "unit_label", label: "Unit label", type: "text", width: "9rem" },
-        { key: "price", label: "Price", type: "number", width: "7rem" },
-        { key: "sort_order", label: "Order", type: "number", width: "5rem" },
-      ]}
-      queryKeys={[["products"]]}
-      newRowDefaults={{ product_id: productId, grams: 0, unit_label: "", price: 0, sort_order: prices.length + 1 }}
-    />
   );
 }
 
