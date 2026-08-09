@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { PageWithSidebar, useSettings } from "@/components/site-chrome";
 import { useCart } from "@/lib/cart";
 import { ProductImage } from "@/lib/product-image";
-import { categoriesQuery, gramsLabel, money, priceRange, productsQuery } from "@/lib/store";
+import { categoriesQuery, money, priceRange, productsQuery, unitLabel } from "@/lib/store";
 
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => {
@@ -72,6 +72,7 @@ function ProductPage() {
       slug: product.slug,
       name: product.name,
       grams: Number(tier.grams),
+      unitLabel: unitLabel(Number(tier.grams), tier.unit_label),
       price: Number(tier.price),
       quantity,
     });
@@ -129,7 +130,7 @@ function ProductPage() {
                       : "border-border bg-card hover:border-primary"
                   }`}
                 >
-                  {gramsLabel(Number(t.grams))} — {money(Number(t.price), symbol)}
+                  {unitLabel(Number(t.grams), t.unit_label)} — {money(Number(t.price), symbol)}
                 </button>
               ))}
               {tiers.length === 0 && <p className="text-sm text-muted-foreground">No weights configured yet.</p>}

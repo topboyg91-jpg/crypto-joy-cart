@@ -6,7 +6,7 @@ import { PageWithSidebar, useSettings } from "@/components/site-chrome";
 import { CopyableAddress, PaymentQr } from "@/components/crypto-payment";
 import { PaymentConfirmForm } from "@/components/payment-confirm";
 import { useCart, type PlacedOrder } from "@/lib/cart";
-import { gramsLabel, money, paymentMethodsQuery, shippingOptionsQuery } from "@/lib/store";
+import { money, paymentMethodsQuery, shippingOptionsQuery, unitLabel } from "@/lib/store";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -205,7 +205,7 @@ function CheckoutPage() {
             {cart.items.map((i) => (
               <tr key={`${i.productId}-${i.grams}`} className="border-b border-border">
                 <td className="px-3 py-2">
-                  {i.name} ({gramsLabel(i.grams)}) <span className="text-muted-foreground">× {i.quantity}</span>
+                  {i.name} ({unitLabel(i.grams, i.unitLabel)}) <span className="text-muted-foreground">× {i.quantity}</span>
                 </td>
                 <td className="px-3 py-2 text-primary">{money(i.price * i.quantity, symbol)}</td>
               </tr>

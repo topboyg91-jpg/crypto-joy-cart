@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { PageWithSidebar, useSettings } from "@/components/site-chrome";
 import { useCart } from "@/lib/cart";
-import { gramsLabel, money } from "@/lib/store";
+import { money, unitLabel } from "@/lib/store";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -57,7 +57,7 @@ function CartPage() {
                         {i.name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3">{gramsLabel(i.grams)}</td>
+                    <td className="px-4 py-3">{unitLabel(i.grams, i.unitLabel)}</td>
                     <td className="px-4 py-3">{money(i.price, symbol)}</td>
                     <td className="px-4 py-3">
                       <input
