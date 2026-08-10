@@ -203,12 +203,6 @@ export const contactMessagesQuery = queryOptions({
   },
 });
 
-function unusedSettingsMap(rows: Setting[] | undefined): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const r of rows ?? []) out[r.key] = r.value;
-  return out;
-}
-
 export function money(value: number, symbol = "$"): string {
   return `${symbol}${Number(value || 0).toFixed(2)}`;
 }
