@@ -343,6 +343,112 @@ function OrdersPanel() {
 }
 
 function OrderDetails({ id }: { id: string }) {
+  return <OrderDetailsInner id={id} />;
+}
+
+function MessagesPanel() {
+  const { data: messages } = useQuery(contactMessagesQuery);
+  const { update, remove } = useTableMutations("contact_messages", [["contact_messages"]]);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+
+  const rows = messages ?? [];
+
+  return (
+    <section className="bg-card border border-border rounded p-4">
+      <h3 className="font-semibold text-primary">Messages from the contact form</h3>
+      <p className="text-xs text-muted-foreground mt-0.5">
+        {rows.length} message{rows.length === 1 ? "" : "s"}. Write a reply, save it, then send it by email with one click.
+      </p>
+
+      <div className="mt-4 space-y-4">
+        {rows.map((m) => {
+          const draft = drafts[m.id] ?? m.reply;
+          const mailto = `mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent(
+            m.order_number ? `Re: your message (order ${m.order_number})` : "Re: your message",
+          )}&body=${encodeURIComponent(draft)}`;
+          return (
+            <article key={m.id} className="border border-border rounded p-3 text-sm">
+              <header className="flex flex-wrap items-baseline justify-between gap-2">
+                <div>
+                  <span className="font-semibold">{m.name}</span>{" "}
+                  <a href={`mailto:${m.email}`} className="text-primary hover:underline">
+                    {m.email}
+                  </a>
+                  {m.order_number && <span className="ml-2 font-mono text-xs">{m.order_number}</span>}
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span>{new Date(m.created_at).toLocaleString()}</span>
+                  <span
+                    className={`px-2 py-0.5 rounded border ${
+                      m.replied_at ? "border-primary text-primary" : "border-border"
+                    }`}
+                  >
+                    {m.replied_at ? "Replied" : m.status}
+                  </span>
+                </div>
+              </header>
+
+              <p className="mt-2 whitespace-pre-line">{m.message}</p>
+
+              <textarea
+                aria-label={`Reply to ${m.name}`}
+                rows={3}
+                value={draft}
+                onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: e.target.value }))}
+                placeholder="Write your reply…"
+                className="mt-3 w-full px-3 py-2 text-sm border border-border rounded bg-background"
+              />
+
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                <button
+                  onClick={() =>
+                    update.mutate({
+                      id: m.id,
+                      idKey: "id",
+                      patch: { reply: draft, replied_at: new Date().toISOString(), status: "Replied" },
+                    })
+                  }
+                  className="px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90"
+                >
+                  Save reply
+                </button>
+                <a
+                  href={mailto}
+                  className="px-3 py-1 rounded border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition"
+                >
+                  Send by email
+                </a>
+                {!m.replied_at && (
+                  <button
+                    onClick={() => update.mutate({ id: m.id, idKey: "id", patch: { status: "Read" } })}
+                    className="text-muted-foreground hover:text-primary"
+                  >
+                    Mark read
+                  </button>
+                )}
+                <button
+                  onClick={() => remove.mutate({ id: m.id, idKey: "id" })}
+                  className="text-muted-foreground hover:text-destructive ml-auto"
+                >
+                  Delete
+                </button>
+              </div>
+
+              {m.replied_at && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Reply saved {new Date(m.replied_at).toLocaleString()}
+                </p>
+              )}
+            </article>
+          );
+        })}
+        {rows.length === 0 && <p className="text-sm text-muted-foreground">No messages yet.</p>}
+      </div>
+    </section>
+  );
+}
+
+function OrderDetailsInner({ id }: { id: string }) {
   const { data: orders } = useQuery(ordersQuery);
   const { update } = useTableMutations("orders", [["orders"]]);
   const { data: items } = useQuery({
