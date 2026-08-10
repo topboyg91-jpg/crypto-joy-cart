@@ -183,6 +183,7 @@ export type ContactMessage = {
   name: string;
   email: string;
   order_number: string;
+  ticket_code: string;
   message: string;
   reply: string;
   replied_at: string | null;
