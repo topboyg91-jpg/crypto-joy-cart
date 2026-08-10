@@ -4,6 +4,7 @@ import { Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { PageBackground, RichText, useSettings } from "@/components/site-chrome";
 import { contentPagesQuery } from "@/lib/store";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -24,11 +25,12 @@ function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", orderId: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
     if (form.name.trim().length < 2) next.name = "Please enter your name.";
@@ -36,6 +38,18 @@ function ContactPage() {
     if (form.message.trim().length < 10) next.message = "Please add a little more detail (10+ characters).";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
+    setSending(true);
+    const { error } = await supabase.from("contact_messages").insert({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      order_number: form.orderId.trim(),
+      message: form.message.trim(),
+    });
+    setSending(false);
+    if (error) {
+      setErrors({ message: "Could not send right now — please try again." });
+      return;
+    }
     setSent(true);
     setForm({ name: "", email: "", orderId: "", message: "" });
   };
@@ -72,8 +86,11 @@ function ContactPage() {
           <Field label="Message" error={errors.message}>
             <textarea value={form.message} onChange={set("message")} rows={5} className={inputClass} />
           </Field>
-          <button className="rounded bg-primary px-6 py-2.5 text-sm text-primary-foreground hover:opacity-90">
-            Send message
+          <button
+            disabled={sending}
+            className="rounded bg-primary px-6 py-2.5 text-sm text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          >
+            {sending ? "Sending…" : "Send message"}
           </button>
         </form>
       </main>
