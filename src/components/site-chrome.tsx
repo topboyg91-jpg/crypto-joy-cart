@@ -36,6 +36,7 @@ const NAV = [
   { label: "SHIPPING & PACKAGING", to: "/shipping-and-packaging" },
   { label: "ABOUT US", to: "/about" },
   { label: "CONTACT US", to: "/contact" },
+  { label: "MESSAGE TRACKING", to: "/message-tracking" },
 ] as const;
 
 export function useSettings() {

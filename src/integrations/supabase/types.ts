@@ -55,6 +55,7 @@ export type Database = {
           replied_at: string | null
           reply: string
           status: string
+          ticket_code: string
         }
         Insert: {
           created_at?: string
@@ -66,6 +67,7 @@ export type Database = {
           replied_at?: string | null
           reply?: string
           status?: string
+          ticket_code?: string
         }
         Update: {
           created_at?: string
@@ -77,6 +79,7 @@ export type Database = {
           replied_at?: string | null
           reply?: string
           status?: string
+          ticket_code?: string
         }
         Relationships: []
       }

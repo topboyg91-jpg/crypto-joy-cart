@@ -357,7 +357,8 @@ function MessagesPanel() {
     <section className="bg-card border border-border rounded p-4">
       <h3 className="font-semibold text-primary">Messages from the contact form</h3>
       <p className="text-xs text-muted-foreground mt-0.5">
-        {rows.length} message{rows.length === 1 ? "" : "s"}. Write a reply, save it, then send it by email with one click.
+        {rows.length} message{rows.length === 1 ? "" : "s"}. Save a reply and the sender reads it on the site's Message
+        tracking page using their reference code.
       </p>
 
       <div className="mt-4 space-y-4">
@@ -375,6 +376,9 @@ function MessagesPanel() {
                     {m.email}
                   </a>
                   {m.order_number && <span className="ml-2 font-mono text-xs">{m.order_number}</span>}
+                  <span className="ml-2 rounded border border-border px-1.5 py-0.5 font-mono text-xs">
+                    {m.ticket_code}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span>{new Date(m.created_at).toLocaleString()}</span>
@@ -410,7 +414,7 @@ function MessagesPanel() {
                   }
                   className="px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90"
                 >
-                  Save reply
+                  Publish reply
                 </button>
                 <a
                   href={mailto}

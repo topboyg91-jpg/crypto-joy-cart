@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -25,6 +26,7 @@ function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", orderId: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sent, setSent] = useState(false);
+  const [ticket, setTicket] = useState("");
   const [sending, setSending] = useState(false);
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -39,17 +41,22 @@ function ContactPage() {
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     setSending(true);
-    const { error } = await supabase.from("contact_messages").insert({
-      name: form.name.trim(),
-      email: form.email.trim(),
-      order_number: form.orderId.trim(),
-      message: form.message.trim(),
-    });
+    const { data, error } = await supabase
+      .from("contact_messages")
+      .insert({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        order_number: form.orderId.trim(),
+        message: form.message.trim(),
+      })
+      .select("ticket_code")
+      .single();
     setSending(false);
     if (error) {
       setErrors({ message: "Could not send right now — please try again." });
       return;
     }
+    setTicket(data?.ticket_code ?? "");
     setSent(true);
     setForm({ name: "", email: "", orderId: "", message: "" });
   };
@@ -68,10 +75,27 @@ function ContactPage() {
         </p>
 
         {sent && (
-          <p className="mt-6 rounded border border-primary bg-accent/60 p-4 text-sm text-accent-foreground">
-            Thanks — your message has been queued. We reply within one business day.
-          </p>
+          <div className="mt-6 rounded border border-primary bg-accent/60 p-4 text-sm text-accent-foreground">
+            <p>Thanks — your message has been received. We reply within one business day.</p>
+            {ticket && (
+              <p className="mt-2">
+                Your reference code is <span className="font-mono font-semibold">{ticket}</span>. Save it — enter it on{" "}
+                <Link to="/message-tracking" className="underline font-semibold">
+                  Message tracking
+                </Link>{" "}
+                to read our reply on this site.
+              </p>
+            )}
+          </div>
         )}
+
+        <p className="mt-4 text-sm text-foreground/70">
+          Already sent a message?{" "}
+          <Link to="/message-tracking" className="text-primary underline">
+            Check for a reply
+          </Link>
+          .
+        </p>
 
         <form onSubmit={submit} className="mt-8 space-y-5 bg-card/95 border border-border rounded p-6">
           <Field label="Your name" error={errors.name}>
