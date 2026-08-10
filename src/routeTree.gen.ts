@@ -13,6 +13,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShippingAndPackagingRouteImport } from './routes/shipping-and-packaging'
 import { Route as PaymentAndDeliveryRouteImport } from './routes/payment-and-delivery'
 import { Route as OrderTrackingRouteImport } from './routes/order-tracking'
+import { Route as MessageTrackingRouteImport } from './routes/message-tracking'
 import { Route as DeliveryTimeRouteImport } from './routes/delivery-time'
 import { Route as DeliveryMethodRouteImport } from './routes/delivery-method'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -41,6 +42,11 @@ const PaymentAndDeliveryRoute = PaymentAndDeliveryRouteImport.update({
 const OrderTrackingRoute = OrderTrackingRouteImport.update({
   id: '/order-tracking',
   path: '/order-tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessageTrackingRoute = MessageTrackingRouteImport.update({
+  id: '/message-tracking',
+  path: '/message-tracking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeliveryTimeRoute = DeliveryTimeRouteImport.update({
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/delivery-method': typeof DeliveryMethodRoute
   '/delivery-time': typeof DeliveryTimeRoute
+  '/message-tracking': typeof MessageTrackingRoute
   '/order-tracking': typeof OrderTrackingRoute
   '/payment-and-delivery': typeof PaymentAndDeliveryRoute
   '/shipping-and-packaging': typeof ShippingAndPackagingRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/delivery-method': typeof DeliveryMethodRoute
   '/delivery-time': typeof DeliveryTimeRoute
+  '/message-tracking': typeof MessageTrackingRoute
   '/order-tracking': typeof OrderTrackingRoute
   '/payment-and-delivery': typeof PaymentAndDeliveryRoute
   '/shipping-and-packaging': typeof ShippingAndPackagingRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/delivery-method': typeof DeliveryMethodRoute
   '/delivery-time': typeof DeliveryTimeRoute
+  '/message-tracking': typeof MessageTrackingRoute
   '/order-tracking': typeof OrderTrackingRoute
   '/payment-and-delivery': typeof PaymentAndDeliveryRoute
   '/shipping-and-packaging': typeof ShippingAndPackagingRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/delivery-method'
     | '/delivery-time'
+    | '/message-tracking'
     | '/order-tracking'
     | '/payment-and-delivery'
     | '/shipping-and-packaging'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/delivery-method'
     | '/delivery-time'
+    | '/message-tracking'
     | '/order-tracking'
     | '/payment-and-delivery'
     | '/shipping-and-packaging'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/delivery-method'
     | '/delivery-time'
+    | '/message-tracking'
     | '/order-tracking'
     | '/payment-and-delivery'
     | '/shipping-and-packaging'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DeliveryMethodRoute: typeof DeliveryMethodRoute
   DeliveryTimeRoute: typeof DeliveryTimeRoute
+  MessageTrackingRoute: typeof MessageTrackingRoute
   OrderTrackingRoute: typeof OrderTrackingRoute
   PaymentAndDeliveryRoute: typeof PaymentAndDeliveryRoute
   ShippingAndPackagingRoute: typeof ShippingAndPackagingRoute
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/order-tracking'
       fullPath: '/order-tracking'
       preLoaderRoute: typeof OrderTrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/message-tracking': {
+      id: '/message-tracking'
+      path: '/message-tracking'
+      fullPath: '/message-tracking'
+      preLoaderRoute: typeof MessageTrackingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/delivery-time': {
@@ -304,6 +324,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DeliveryMethodRoute: DeliveryMethodRoute,
   DeliveryTimeRoute: DeliveryTimeRoute,
+  MessageTrackingRoute: MessageTrackingRoute,
   OrderTrackingRoute: OrderTrackingRoute,
   PaymentAndDeliveryRoute: PaymentAndDeliveryRoute,
   ShippingAndPackagingRoute: ShippingAndPackagingRoute,
