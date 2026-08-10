@@ -7,6 +7,7 @@ import { PageBackground } from "@/components/site-chrome";
 import { AdminGate, lockAdmin } from "@/lib/admin-gate";
 import {
   categoriesQuery,
+  contactMessagesQuery,
   contentPagesQuery,
   money,
   unitLabel,
@@ -38,7 +39,7 @@ function AdminPage() {
   );
 }
 
-const TABS = ["Prices", "Products", "Categories", "Payments", "Shipping", "Settings", "Pages", "Orders"] as const;
+const TABS = ["Prices", "Products", "Categories", "Payments", "Shipping", "Settings", "Pages", "Orders", "Messages"] as const;
 type Tab = (typeof TABS)[number];
 
 function AdminPanel() {
@@ -90,6 +91,7 @@ function AdminPanel() {
           {tab === "Settings" && <SettingsPanel />}
           {tab === "Pages" && <PagesPanel />}
           {tab === "Orders" && <OrdersPanel />}
+          {tab === "Messages" && <MessagesPanel />}
         </div>
       </main>
     </PageBackground>
