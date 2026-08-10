@@ -178,6 +178,37 @@ export function settingsMap(rows: Setting[] | undefined): Record<string, string>
   return out;
 }
 
+export type ContactMessage = {
+  id: string;
+  name: string;
+  email: string;
+  order_number: string;
+  message: string;
+  reply: string;
+  replied_at: string | null;
+  status: string;
+  created_at: string;
+};
+
+export const contactMessagesQuery = queryOptions({
+  queryKey: ["contact_messages"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("contact_messages")
+      .select(sel("*"))
+      .order("created_at", { ascending: false })
+      .returns<ContactMessage[]>();
+    if (error) throw error;
+    return data ?? [];
+  },
+});
+
+function unusedSettingsMap(rows: Setting[] | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const r of rows ?? []) out[r.key] = r.value;
+  return out;
+}
+
 export function money(value: number, symbol = "$"): string {
   return `${symbol}${Number(value || 0).toFixed(2)}`;
 }
