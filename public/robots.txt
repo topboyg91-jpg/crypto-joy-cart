@@ -3,3 +3,18 @@ Allow: /
 
 Disallow: /cart
 Disallow: /checkout
+Disallow: /admin
+Disallow: /order-tracking
+Disallow: /message-tracking
+
+# Explicitly welcome the crawlers DuckDuckGo results are built on.
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://crypto-joy-cart.lovable.app/sitemap.xml
