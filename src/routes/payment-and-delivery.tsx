@@ -15,6 +15,7 @@ export const Route = createFileRoute("/payment-and-delivery")({
       { property: "og:title", content: "Payment and Delivery" },
       { property: "og:description", content: "Crypto-only payments and how orders are delivered." },
     ],
+    links: [{ rel: "canonical", href: "/payment-and-delivery" }],
   }),
   component: PaymentAndDelivery,
 });

@@ -17,6 +17,7 @@ export const Route = createFileRoute("/message-tracking")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "/message-tracking" }],
   }),
   component: MessageTrackingPage,
 });

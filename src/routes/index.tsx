@@ -23,6 +23,36 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: "Drugs",
+              url: "/",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: { "@type": "EntryPoint", urlTemplate: "/?q={search_term_string}" },
+                "query-input": "required name=search_term_string",
+              },
+            },
+            {
+              "@type": "Store",
+              name: "Drugs",
+              description:
+                "Single-origin coffee, loose-leaf tea and whole spices sold by the gram, with crypto checkout and worldwide shipping.",
+              url: "/",
+              currenciesAccepted: "BTC, XMR",
+              paymentAccepted: "Cryptocurrency",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: ShopPage,
 });

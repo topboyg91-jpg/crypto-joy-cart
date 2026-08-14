@@ -24,6 +24,7 @@ export const Route = createFileRoute("/order-tracking")({
       { property: "og:title", content: "Order tracking" },
       { property: "og:description", content: "Look up an order by number or email." },
     ],
+    links: [{ rel: "canonical", href: "/order-tracking" }],
   }),
   component: OrderTrackingPage,
 });
