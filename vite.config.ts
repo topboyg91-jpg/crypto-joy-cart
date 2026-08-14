@@ -73,6 +73,7 @@ export default defineConfig({
       { path: "/shipping-and-packaging" },
       { path: "/admin" },
       { path: "/sitemap.xml" },
+      { path: "/BingSiteAuth.xml" },
       ...extraPages,
         ]
       : [],
