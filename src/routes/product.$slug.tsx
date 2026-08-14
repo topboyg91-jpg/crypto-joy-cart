@@ -9,15 +9,44 @@ import { categoriesQuery, money, priceRange, productsQuery, unitLabel } from "@/
 
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => {
-    const title = `${params.slug.replace(/-/g, " ")} — order by the gram`;
+    const name = params.slug
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    const title = `${name} — buy by the gram`;
+    const description = `Buy ${name} by the gram: pick a weight, pay with Bitcoin or Monero, sealed and shipped worldwide.`;
     return {
       meta: [
         { title },
-        { name: "description", content: "Choose a weight in grams and check out with crypto. Sealed for freshness." },
+        { name: "description", content: description },
         { property: "og:title", content: title },
-        { property: "og:description", content: "Choose a weight in grams and check out with crypto." },
+        { property: "og:description", content: description },
         { property: "og:type", content: "product" },
         { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: `/product/${params.slug}` }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Product",
+                name,
+                description,
+                url: `/product/${params.slug}`,
+                category: "Food & Beverage",
+              },
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  { "@type": "ListItem", position: 1, name: "Shop", item: "/" },
+                  { "@type": "ListItem", position: 2, name, item: `/product/${params.slug}` },
+                ],
+              },
+            ],
+          }),
+        },
       ],
     };
   },
