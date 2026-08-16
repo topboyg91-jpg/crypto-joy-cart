@@ -13,8 +13,9 @@ export const Route = createFileRoute("/delivery-time")({
       },
       { property: "og:title", content: "Delivery Time" },
       { property: "og:description", content: "Regional delivery estimates and address formatting." },
+          { property: "og:url", content: "https://www.deepshop.space/delivery-time" },
     ],
-    links: [{ rel: "canonical", href: "/delivery-time" }],
+    links: [{ rel: "canonical", href: "https://www.deepshop.space/delivery-time" }],
   }),
   component: () => <ContentPage slug="delivery-time" />,
 });

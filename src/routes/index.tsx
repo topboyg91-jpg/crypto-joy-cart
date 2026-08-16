@@ -22,8 +22,9 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Order by the gram with worldwide shipping." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+          { property: "og:url", content: "https://www.deepshop.space/" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://www.deepshop.space/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -33,10 +34,10 @@ export const Route = createFileRoute("/")({
             {
               "@type": "WebSite",
               name: "Drugs",
-              url: "/",
+              url: "https://www.deepshop.space/",
               potentialAction: {
                 "@type": "SearchAction",
-                target: { "@type": "EntryPoint", urlTemplate: "/?q={search_term_string}" },
+                target: { "@type": "EntryPoint", urlTemplate: "https://www.deepshop.space/?q={search_term_string}" },
                 "query-input": "required name=search_term_string",
               },
             },
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/")({
               name: "Drugs",
               description:
                 "Single-origin coffee, loose-leaf tea and whole spices sold by the gram, with crypto checkout and worldwide shipping.",
-              url: "/",
+              url: "https://www.deepshop.space/",
               currenciesAccepted: "BTC, XMR",
               paymentAccepted: "Cryptocurrency",
             },

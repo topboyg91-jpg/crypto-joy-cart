@@ -11,8 +11,9 @@ export const Route = createFileRoute("/shipping-and-packaging")({
       },
       { property: "og:title", content: "Shipping and Packaging" },
       { property: "og:description", content: "How we pack and ship every order." },
+          { property: "og:url", content: "https://www.deepshop.space/shipping-and-packaging" },
     ],
-    links: [{ rel: "canonical", href: "/shipping-and-packaging" }],
+    links: [{ rel: "canonical", href: "https://www.deepshop.space/shipping-and-packaging" }],
   }),
   component: () => <ContentPage slug="shipping-and-packaging" />,
 });
