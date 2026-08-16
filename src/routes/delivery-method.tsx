@@ -12,7 +12,7 @@ export const Route = createFileRoute("/delivery-method")({
       { property: "og:title", content: "Delivery Method" },
       { property: "og:description", content: "Standard and express shipping options for every order." },
     ],
-    links: [{ rel: "canonical", href: "/delivery-method" }],
+    links: [{ rel: "canonical", href: "https://www.deepshop.space/delivery-method" }],
   }),
   component: DeliveryMethodPage,
 });

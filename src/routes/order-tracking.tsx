@@ -24,7 +24,7 @@ export const Route = createFileRoute("/order-tracking")({
       { property: "og:title", content: "Order tracking" },
       { property: "og:description", content: "Look up an order by number or email." },
     ],
-    links: [{ rel: "canonical", href: "/order-tracking" }],
+    links: [{ rel: "canonical", href: "https://www.deepshop.space/order-tracking" }],
   }),
   component: OrderTrackingPage,
 });

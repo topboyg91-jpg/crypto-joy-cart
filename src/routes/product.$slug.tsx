@@ -23,7 +23,7 @@ export const Route = createFileRoute("/product/$slug")({
         { property: "og:type", content: "product" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/product/${params.slug}` }],
+      links: [{ rel: "canonical", href: `https://www.deepshop.space/product/${params.slug}` }],
       scripts: [
         {
           type: "application/ld+json",

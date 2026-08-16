@@ -12,7 +12,7 @@ export const Route = createFileRoute("/about")({
       { property: "og:title", content: "About us" },
       { property: "og:description", content: "Who we are and how the store works." },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [{ rel: "canonical", href: "https://www.deepshop.space/about" }],
   }),
   component: AboutPage,
 });
