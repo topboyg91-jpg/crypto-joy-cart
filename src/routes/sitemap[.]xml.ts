@@ -9,6 +9,11 @@ function baseUrlFrom(request: Request): string {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProto = request.headers.get("x-forwarded-proto");
   const host = forwardedHost ?? url.host;
+  // Clearnet canonical host is www.deepshop.space — sitemap URLs must match the
+  // canonical tags exactly or Bing rejects submissions as "canonical mismatch".
+  if (!host.endsWith(".onion") && !host.includes("localhost")) {
+    return "https://www.deepshop.space";
+  }
   // Tor hidden services are plain HTTP behind the onion transport.
   const proto = forwardedProto ?? (host.endsWith(".onion") ? "http" : url.protocol.replace(":", ""));
   return `${proto}://${host}`;
