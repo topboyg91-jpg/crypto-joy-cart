@@ -17,4 +17,4 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://crypto-joy-cart.lovable.app/sitemap.xml
+Sitemap: https://www.deepshop.space/sitemap.xml
