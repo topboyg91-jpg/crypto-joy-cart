@@ -22,6 +22,7 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Order by the gram with worldwide shipping." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+          { property: "og:url", content: "https://www.deepshop.space/" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/" }],
     scripts: [

@@ -14,6 +14,7 @@ export const Route = createFileRoute("/payment-and-delivery")({
       },
       { property: "og:title", content: "Payment and Delivery" },
       { property: "og:description", content: "Crypto-only payments and how orders are delivered." },
+          { property: "og:url", content: "https://www.deepshop.space/payment-and-delivery" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/payment-and-delivery" }],
   }),

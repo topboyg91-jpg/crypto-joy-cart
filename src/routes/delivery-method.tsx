@@ -11,6 +11,7 @@ export const Route = createFileRoute("/delivery-method")({
       { name: "description", content: "Standard and express delivery options, how parcels travel and what tracking you get." },
       { property: "og:title", content: "Delivery Method" },
       { property: "og:description", content: "Standard and express shipping options for every order." },
+          { property: "og:url", content: "https://www.deepshop.space/delivery-method" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/delivery-method" }],
   }),

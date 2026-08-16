@@ -16,6 +16,7 @@ export const Route = createFileRoute("/message-tracking")({
       { property: "og:description", content: "Look up your message reference to read our reply." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+          { property: "og:url", content: "https://www.deepshop.space/message-tracking" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/message-tracking" }],
   }),

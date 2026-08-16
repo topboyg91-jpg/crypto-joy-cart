@@ -11,6 +11,7 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "A small team roasting, blending and shipping specialty coffee, tea and spices worldwide, with crypto checkout." },
       { property: "og:title", content: "About us" },
       { property: "og:description", content: "Who we are and how the store works." },
+          { property: "og:url", content: "https://www.deepshop.space/about" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/about" }],
   }),

@@ -14,6 +14,7 @@ export const Route = createFileRoute("/contact")({
       { name: "description", content: "Contact the team about an order, delivery question, refund or bulk enquiry." },
       { property: "og:title", content: "Contact us" },
       { property: "og:description", content: "Send the support team a message about your order." },
+          { property: "og:url", content: "https://www.deepshop.space/contact" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/contact" }],
   }),
