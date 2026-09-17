@@ -7,9 +7,15 @@ export type CartItem = {
   name: string;
   grams: number;
   unitLabel?: string;
+  /** Chosen datacenter location, e.g. "Dallas, TX". */
+  location?: string;
   price: number;
   quantity: number;
 };
+
+const sameLine = (i: CartItem, productId: string, grams: number, location?: string) =>
+  i.productId === productId && i.grams === grams && (i.location ?? "") === (location ?? "");
+
 
 export type PlaceOrderInput = {
   firstName: string;
@@ -49,8 +55,8 @@ type CartContextValue = {
   subtotal: number;
   hydrated: boolean;
   add: (item: CartItem) => void;
-  setQuantity: (productId: string, grams: number, quantity: number) => void;
-  remove: (productId: string, grams: number) => void;
+  setQuantity: (productId: string, grams: number, quantity: number, location?: string) => void;
+  remove: (productId: string, grams: number, location?: string) => void;
   clear: () => void;
   placeOrder: (details: PlaceOrderInput) => Promise<PlacedOrder>;
 };
