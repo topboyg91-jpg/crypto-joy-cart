@@ -80,11 +80,13 @@ function ShopPage() {
 
   return (
     <PageWithSidebar>
-      <h2 className="text-3xl font-bold text-primary">{activeCategory ? activeCategory.name : "All products"}</h2>
+      <h2 className="text-3xl font-bold text-primary">{activeCategory ? activeCategory.name : "All RDP plans"}</h2>
       <p className="mt-2 text-sm text-foreground/70">
         {q ? `Results for “${q}”. ` : ""}
-        Every product is priced per gram — pick a weight on the product page.
+        Every plan is billed per term — pick a duration on the plan page. Credentials are delivered after payment
+        confirms.
       </p>
+
 
       {isLoading && <p className="mt-10 text-sm text-muted-foreground">Loading products…</p>}
 
