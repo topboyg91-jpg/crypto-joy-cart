@@ -30,13 +30,14 @@ function AdminFooterLink() {
 const NAV = [
   { label: "HOME", to: "/" },
   { label: "ORDER TRACKING", to: "/order-tracking" },
-  { label: "PAYMENT AND DELIVERY", to: "/payment-and-delivery" },
-  { label: "DELIVERY METHOD", to: "/delivery-method" },
+  { label: "PAYMENT & DELIVERY", to: "/payment-and-delivery" },
+  { label: "HOW DELIVERY WORKS", to: "/delivery-method" },
   { label: "DELIVERY TIME", to: "/delivery-time" },
-  { label: "SHIPPING & PACKAGING", to: "/shipping-and-packaging" },
+  { label: "SETUP & ACCESS", to: "/shipping-and-packaging" },
   { label: "ABOUT US", to: "/about" },
   { label: "CONTACT US", to: "/contact" },
   { label: "MESSAGE TRACKING", to: "/message-tracking" },
+
 ] as const;
 
 export function useSettings() {
