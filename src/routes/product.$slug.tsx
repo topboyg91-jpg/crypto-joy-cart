@@ -12,8 +12,8 @@ export const Route = createFileRoute("/product/$slug")({
     const name = params.slug
       .replace(/-/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase());
-    const title = `${name} — buy by the gram`;
-    const description = `Buy ${name} by the gram: pick a weight, pay with Bitcoin or Monero, sealed and shipped worldwide.`;
+    const title = `${name} — instant RDP access`;
+    const description = `Buy ${name}: pick a term, pay with Bitcoin or Monero and receive your login details after payment confirms.`;
     return {
       meta: [
         { title },
