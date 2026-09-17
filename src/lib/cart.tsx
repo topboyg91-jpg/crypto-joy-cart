@@ -7,9 +7,15 @@ export type CartItem = {
   name: string;
   grams: number;
   unitLabel?: string;
+  /** Chosen datacenter location, e.g. "Dallas, TX". */
+  location?: string;
   price: number;
   quantity: number;
 };
+
+const sameLine = (i: CartItem, productId: string, grams: number, location?: string) =>
+  i.productId === productId && i.grams === grams && (i.location ?? "") === (location ?? "");
+
 
 export type PlaceOrderInput = {
   firstName: string;
