@@ -30,13 +30,14 @@ function AdminFooterLink() {
 const NAV = [
   { label: "HOME", to: "/" },
   { label: "ORDER TRACKING", to: "/order-tracking" },
-  { label: "PAYMENT AND DELIVERY", to: "/payment-and-delivery" },
-  { label: "DELIVERY METHOD", to: "/delivery-method" },
+  { label: "PAYMENT & DELIVERY", to: "/payment-and-delivery" },
+  { label: "HOW DELIVERY WORKS", to: "/delivery-method" },
   { label: "DELIVERY TIME", to: "/delivery-time" },
-  { label: "SHIPPING & PACKAGING", to: "/shipping-and-packaging" },
+  { label: "SETUP & ACCESS", to: "/shipping-and-packaging" },
   { label: "ABOUT US", to: "/about" },
   { label: "CONTACT US", to: "/contact" },
   { label: "MESSAGE TRACKING", to: "/message-tracking" },
+
 ] as const;
 
 export function useSettings() {
@@ -186,7 +187,7 @@ export function ShopSidebar() {
 
       <section>
         <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase border-b border-border pb-2">
-          Product categories
+          RDP categories
         </h3>
         <div className="mt-3 space-y-4">
           {[...groups.entries()].map(([group, list]) => (
@@ -212,7 +213,7 @@ export function ShopSidebar() {
 
       <section>
         <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase border-b border-border pb-2">
-          Products
+          Popular plans
         </h3>
         <ul className="mt-3 space-y-3">
           {(products ?? [])

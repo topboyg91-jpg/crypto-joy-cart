@@ -13,13 +13,14 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "Drugs — apothecary coffee, tea & spice by the gram" },
+      { title: "DeepShop RDP — buy Admin RDP, Residential RDP & Windows VPS" },
       {
         name: "description",
-        content: "Browse single-origin coffee, loose-leaf tea and whole spices priced by the gram, with crypto checkout.",
+        content:
+          "Buy Admin RDP, Residential RDP and Windows VPS with instant delivery. USA, Europe and Asia locations, full administrator access, crypto payment only.",
       },
-      { property: "og:title", content: "Drugs — apothecary coffee, tea & spice by the gram" },
-      { property: "og:description", content: "Order by the gram with worldwide shipping." },
+      { property: "og:title", content: "DeepShop RDP — Admin RDP, Residential RDP & Windows VPS" },
+      { property: "og:description", content: "Instant RDP and Windows VPS delivery, paid in Bitcoin or Monero." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
           { property: "og:url", content: "https://www.deepshop.space/" },
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/")({
           "@graph": [
             {
               "@type": "WebSite",
-              name: "Drugs",
+              name: "DeepShop RDP",
               url: "https://www.deepshop.space/",
               potentialAction: {
                 "@type": "SearchAction",
@@ -43,9 +44,9 @@ export const Route = createFileRoute("/")({
             },
             {
               "@type": "Store",
-              name: "Drugs",
+              name: "DeepShop RDP",
               description:
-                "Single-origin coffee, loose-leaf tea and whole spices sold by the gram, with crypto checkout and worldwide shipping.",
+                "Admin RDP, Residential RDP and Windows VPS plans in the USA, Europe and Asia with instant delivery and crypto checkout.",
               url: "https://www.deepshop.space/",
               currenciesAccepted: "BTC, XMR",
               paymentAccepted: "Cryptocurrency",
@@ -55,6 +56,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+
   component: ShopPage,
 });
 
@@ -78,11 +80,13 @@ function ShopPage() {
 
   return (
     <PageWithSidebar>
-      <h2 className="text-3xl font-bold text-primary">{activeCategory ? activeCategory.name : "All products"}</h2>
+      <h2 className="text-3xl font-bold text-primary">{activeCategory ? activeCategory.name : "All RDP plans"}</h2>
       <p className="mt-2 text-sm text-foreground/70">
         {q ? `Results for “${q}”. ` : ""}
-        Every product is priced per gram — pick a weight on the product page.
+        Every plan is billed per term — pick a duration on the plan page. Credentials are delivered after payment
+        confirms.
       </p>
+
 
       {isLoading && <p className="mt-10 text-sm text-muted-foreground">Loading products…</p>}
 

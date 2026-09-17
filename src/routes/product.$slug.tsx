@@ -12,8 +12,8 @@ export const Route = createFileRoute("/product/$slug")({
     const name = params.slug
       .replace(/-/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase());
-    const title = `${name} — buy by the gram`;
-    const description = `Buy ${name} by the gram: pick a weight, pay with Bitcoin or Monero, sealed and shipped worldwide.`;
+    const title = `${name} — instant RDP access`;
+    const description = `Buy ${name}: pick a term, pay with Bitcoin or Monero and receive your login details after payment confirms.`;
     return {
       meta: [
         { title },
@@ -36,7 +36,7 @@ export const Route = createFileRoute("/product/$slug")({
                 name,
                 description,
                 url: `/product/${params.slug}`,
-                category: "Food & Beverage",
+                category: "Remote Desktop Hosting",
               },
               {
                 "@type": "BreadcrumbList",
@@ -148,7 +148,7 @@ function ProductPage() {
           <p className="mt-4 text-sm text-foreground/75">{product.description}</p>
 
           <div className="mt-6">
-            <span className="text-sm font-semibold">Weight</span>
+            <span className="text-sm font-semibold">Term</span>
             <div className="mt-2 flex flex-wrap gap-2">
               {tiers.map((t) => (
                 <button
@@ -163,7 +163,8 @@ function ProductPage() {
                   {unitLabel(Number(t.grams), t.unit_label)} — {money(Number(t.price), symbol)}
                 </button>
               ))}
-              {tiers.length === 0 && <p className="text-sm text-muted-foreground">No weights configured yet.</p>}
+              {tiers.length === 0 && <p className="text-sm text-muted-foreground">No terms configured yet.</p>}
+
             </div>
           </div>
 
@@ -211,7 +212,7 @@ function ProductPage() {
 
       {related.length > 0 && (
         <section className="mt-14">
-          <h3 className="text-xl font-bold text-primary">Related products</h3>
+          <h3 className="text-xl font-bold text-primary">Related plans</h3>
           <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-5">
             {related.map((c) => (
               <Link
