@@ -11,13 +11,13 @@ import { money, paymentMethodsQuery, shippingOptionsQuery, unitLabel } from "@/l
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "Checkout — billing, shipping and crypto payment" },
+      { title: "Checkout — pay for your RDP in crypto" },
       {
         name: "description",
-        content: "Enter your billing and shipping details, pick a delivery speed and pay with Bitcoin or Monero.",
+        content: "Enter your contact details, pick a delivery speed and pay with Bitcoin or Monero.",
       },
       { property: "og:title", content: "Checkout" },
-      { property: "og:description", content: "Billing, shipping and crypto payment." },
+      { property: "og:description", content: "Contact details and crypto payment." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -64,7 +64,7 @@ function CheckoutPage() {
     const next: Record<string, string> = {};
     if (firstName.trim().length < 2) next.firstName = "First name is required.";
     if (lastName.trim().length < 2) next.lastName = "Last name is required.";
-    if (address.trim().length < 5) next.address = "Shipping address is required.";
+    
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = "A valid email address is required.";
     if (!payment) next.payment = "Select a payment method.";
     if (cart.items.length === 0) next.cart = "Your cart is empty.";
@@ -138,7 +138,7 @@ function CheckoutPage() {
       <form onSubmit={submit} className="mt-6">
         <div className="grid gap-8 md:grid-cols-2">
           <section>
-            <h3 className="text-primary font-semibold">Billing &amp; Shipping</h3>
+            <h3 className="text-primary font-semibold">Your details</h3>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <Field label="First name" required error={errors.firstName}>
                 <input
@@ -156,7 +156,7 @@ function CheckoutPage() {
               </Field>
             </div>
             <div className="mt-4">
-              <Field label="Shipping address" required error={errors.address}>
+              <Field label="Telegram or Jabber (optional)" error={errors.address}>
                 <textarea
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -215,7 +215,7 @@ function CheckoutPage() {
               <td className="px-3 py-2 text-primary">{money(cart.subtotal, symbol)}</td>
             </tr>
             <tr className="border-b border-border align-top">
-              <td className="px-3 py-2 font-semibold">Shipping</td>
+              <td className="px-3 py-2 font-semibold">Delivery</td>
               <td className="px-3 py-2">
                 <div className="space-y-1">
                   {(shippingOptions ?? []).map((s) => (
