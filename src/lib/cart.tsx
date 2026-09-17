@@ -55,8 +55,8 @@ type CartContextValue = {
   subtotal: number;
   hydrated: boolean;
   add: (item: CartItem) => void;
-  setQuantity: (productId: string, grams: number, quantity: number) => void;
-  remove: (productId: string, grams: number) => void;
+  setQuantity: (productId: string, grams: number, quantity: number, location?: string) => void;
+  remove: (productId: string, grams: number, location?: string) => void;
   clear: () => void;
   placeOrder: (details: PlaceOrderInput) => Promise<PlacedOrder>;
 };
