@@ -187,7 +187,7 @@ export function ShopSidebar() {
 
       <section>
         <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase border-b border-border pb-2">
-          Product categories
+          RDP categories
         </h3>
         <div className="mt-3 space-y-4">
           {[...groups.entries()].map(([group, list]) => (
@@ -213,7 +213,7 @@ export function ShopSidebar() {
 
       <section>
         <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase border-b border-border pb-2">
-          Products
+          Popular plans
         </h3>
         <ul className="mt-3 space-y-3">
           {(products ?? [])
