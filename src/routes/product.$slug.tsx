@@ -6,6 +6,7 @@ import { PageWithSidebar, useSettings } from "@/components/site-chrome";
 import { useCart } from "@/lib/cart";
 import { ProductImage } from "@/lib/product-image";
 import { categoriesQuery, money, priceRange, productsQuery, unitLabel } from "@/lib/store";
+import { locationLabel, locationsForPlan } from "@/lib/rdp-locations";
 
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => {
@@ -69,6 +70,11 @@ function ProductPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const locations = useMemo(() => locationsForPlan(product?.slug ?? slug), [product?.slug, slug]);
+  const [areaCode, setAreaCode] = useState("");
+  const [city, setCity] = useState("");
+  const region = locations.find((entry) => entry.code === areaCode) ?? locations[0];
+  const selectedCity = city || region?.cities[0] || "";
 
   const tier = tiers.find((t) => t.id === selectedId) ?? tiers[0];
   const category = (categories ?? []).find((c) => c.id === product?.category_id);
@@ -105,6 +111,7 @@ function ProductPage() {
       unitLabel: unitLabel(Number(tier.grams), tier.unit_label),
       price: Number(tier.price),
       quantity,
+      location: region && selectedCity ? locationLabel(region, selectedCity) : undefined,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -146,6 +153,18 @@ function ProductPage() {
           <h2 className="text-2xl font-bold text-primary">{product.name}</h2>
           <p className="mt-1 text-lg text-foreground/70">{priceRange(product, symbol)}</p>
           <p className="mt-4 text-sm text-foreground/75">{product.description}</p>
+
+          <div className="mt-6">
+            <span className="text-sm font-semibold">Proxy location</span>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <select value={region?.code ?? ""} onChange={(e) => { setAreaCode(e.target.value); setCity(""); }} aria-label="State or region" className="h-10 rounded border border-border bg-card px-3 text-sm">
+                {locations.map((entry) => <option key={`${entry.area}-${entry.code}`} value={entry.code}>{entry.area}</option>)}
+              </select>
+              <select value={selectedCity} onChange={(e) => setCity(e.target.value)} aria-label="City" className="h-10 rounded border border-border bg-card px-3 text-sm">
+                {(region?.cities ?? []).map((name) => <option key={name} value={name}>{name}</option>)}
+              </select>
+            </div>
+          </div>
 
           <div className="mt-6">
             <span className="text-sm font-semibold">Term</span>
