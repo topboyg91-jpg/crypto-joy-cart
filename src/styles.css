@@ -49,30 +49,36 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-brand: "Pacifico", cursive;
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-gold-soft: var(--gold-soft);
+  --font-brand: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.99 0.005 100);
-  --foreground: oklch(0.2 0.02 150);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 150);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 150);
-  --primary: oklch(0.45 0.14 145);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.95 0.02 145);
-  --secondary-foreground: oklch(0.3 0.08 145);
-  --muted: oklch(0.96 0.01 145);
-  --muted-foreground: oklch(0.5 0.03 145);
-  --accent: oklch(0.9 0.05 145);
-  --accent-foreground: oklch(0.3 0.1 145);
+  --radius: 0.4rem;
+  --background: oklch(0.25 0.018 255);
+  --foreground: oklch(0.95 0.01 90);
+  --card: oklch(0.29 0.018 255);
+  --card-foreground: oklch(0.95 0.01 90);
+  --popover: oklch(0.26 0.018 255);
+  --popover-foreground: oklch(0.95 0.01 90);
+  --primary: oklch(0.78 0.16 88);
+  --primary-foreground: oklch(0.18 0.015 255);
+  --secondary: oklch(0.34 0.02 255);
+  --secondary-foreground: oklch(0.94 0.01 90);
+  --muted: oklch(0.31 0.016 255);
+  --muted-foreground: oklch(0.7 0.02 255);
+  --accent: oklch(0.39 0.025 255);
+  --accent-foreground: oklch(0.98 0.01 90);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.88 0.02 145);
-  --input: oklch(0.92 0.015 145);
-  --ring: oklch(0.45 0.14 145);
+  --border: oklch(0.42 0.02 255);
+  --input: oklch(0.22 0.015 255);
+  --ring: oklch(0.78 0.16 88);
+  --panel: oklch(0.9 0.018 255);
+  --panel-strong: oklch(0.32 0.025 255);
+  --gold-soft: oklch(0.9 0.13 91);
 }
 
 @layer base {
@@ -84,5 +90,10 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: 0;
+  }
+
+  button, a, input, select {
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
   }
 }
