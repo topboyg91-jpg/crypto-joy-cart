@@ -1,9 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Mail, Search, ShoppingCart } from "lucide-react";
+import { Globe2, Menu, Search, ShieldCheck, ShoppingCart, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { isAdminUnlocked } from "@/lib/admin-gate";
-import leavesBg from "@/assets/leaves-bg.jpg";
 import { useCart } from "@/lib/cart";
 import { ProductImage } from "@/lib/product-image";
 import {
@@ -52,6 +51,7 @@ export function SiteHeader() {
   const { data: categories } = useQuery(categoriesQuery);
   const [term, setTerm] = useState("");
   const [category, setCategory] = useState("all");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,85 +59,44 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="relative">
-      <div
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55)), url(${leavesBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-6 py-8 flex flex-col md:flex-row md:items-center gap-6">
-          <div className="flex-1">
-            <Link to="/" className="inline-block">
-              <h1 className="text-5xl md:text-6xl leading-none text-primary" style={{ fontFamily: "var(--font-brand)" }}>
-                {settings.store_name ?? ""}
-              </h1>
-            </Link>
-            <p className="mt-3 text-primary font-semibold max-w-sm">{settings.tagline ?? ""}</p>
-            <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
-              <Mail className="h-3 w-3" /> {settings.contact_email ?? ""}
-            </p>
-          </div>
-
-          <form onSubmit={submit} className="flex-1 max-w-xl w-full">
-            <div className="flex items-stretch bg-card border border-border rounded overflow-hidden shadow-sm">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                aria-label="Category"
-                className="px-3 text-sm bg-muted border-r border-border outline-none"
-              >
-                <option value="all">All Categories</option>
-                {(categories ?? []).map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={term}
-                onChange={(e) => setTerm(e.target.value)}
-                placeholder={settings.search_placeholder ?? "Search…"}
-                aria-label="Search products"
-                className="flex-1 px-3 py-2 text-sm outline-none bg-card"
-              />
-              <button type="submit" className="px-4 bg-primary text-primary-foreground" aria-label="Search">
-                <Search className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
-
-          <Link to="/cart" className="flex items-center gap-2 text-primary hover:opacity-80">
-            <span className="relative">
-              <ShoppingCart className="h-6 w-6" />
-              {cart.count > 0 && (
-                <span className="absolute -top-2 -right-2 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] leading-4 text-center">
-                  {cart.count}
-                </span>
-              )}
-            </span>
-            <span className="text-sm font-semibold">{money(cart.subtotal, settings.currency_symbol ?? "$")}</span>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+      <div className="mx-auto flex h-20 max-w-7xl items-center gap-5 px-5">
+        <Link to="/" className="mr-auto flex items-center gap-3 text-primary">
+          <span className="grid h-10 w-10 place-items-center rounded border border-primary/50 bg-primary/10">
+            <Globe2 className="h-5 w-5" />
+          </span>
+          <span className="text-lg font-black uppercase tracking-[0.16em]">{settings.store_name || "DeepProxy"}</span>
+        </Link>
+        <nav className="hidden items-center gap-6 lg:flex text-sm text-muted-foreground">
+          <Link to="/" className="text-primary">Proxy store</Link>
+          <Link to="/order-tracking" className="hover:text-foreground">Orders</Link>
+          <Link to="/payment-and-delivery" className="hover:text-foreground">Delivery</Link>
+          <Link to="/contact" className="hover:text-foreground">Support</Link>
+        </nav>
+        <Link to="/cart" className="relative flex h-10 items-center gap-2 rounded border border-primary/60 px-4 text-sm font-bold text-primary hover:bg-primary hover:text-primary-foreground">
+          <ShoppingCart className="h-4 w-4" />
+          <span className="hidden sm:inline">Cart</span>
+          {cart.count > 0 && <span className="rounded bg-primary px-1.5 text-xs text-primary-foreground">{cart.count}</span>}
+        </Link>
+        <button onClick={() => setMenuOpen((v) => !v)} className="grid h-10 w-10 place-items-center rounded border border-border lg:hidden" aria-label="Toggle menu">
+          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
-
-      <nav className="bg-card/95 backdrop-blur border-y border-border">
-        <ul className="mx-auto max-w-7xl px-6 py-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] tracking-wide text-foreground/80">
-          {NAV.map((item) => (
-            <li key={item.to}>
-              <Link
-                to={item.to}
-                activeOptions={{ exact: item.to === "/" }}
-                activeProps={{ className: "text-primary border-primary" }}
-                className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary pb-1"
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {menuOpen && (
+        <nav className="grid gap-1 border-t border-border bg-card px-5 py-4 lg:hidden">
+          {NAV.slice(0, 8).map((item) => <Link key={item.to} to={item.to} className="rounded px-3 py-2 text-sm hover:bg-accent">{item.label}</Link>)}
+        </nav>
+      )}
+      <div className="hidden">
+        <form onSubmit={submit}>
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="all">All Categories</option>
+            {(categories ?? []).map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+          </select>
+          <input value={term} onChange={(e) => setTerm(e.target.value)} />
+          <button type="submit"><Search /></button>
+        </form>
+      </div>
     </header>
   );
 }
@@ -241,7 +200,7 @@ export function ShopSidebar() {
 export function SiteFooter() {
   const settings = useSettings();
   return (
-    <footer className="border-t border-border bg-card/80 backdrop-blur mt-10">
+    <footer className="border-t border-border bg-card mt-10">
       <div className="mx-auto max-w-7xl px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
         <p>{settings.footer_text ?? ""}</p>
         <div className="flex gap-4">
@@ -260,13 +219,7 @@ export function SiteFooter() {
 
 export function PageBackground({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen relative flex flex-col">
-      <div
-        aria-hidden
-        className="fixed inset-0 -z-10 opacity-40"
-        style={{ backgroundImage: `url(${leavesBg})`, backgroundSize: "600px" }}
-      />
-      <div aria-hidden className="fixed inset-0 -z-10 bg-background/60" />
+    <div className="min-h-screen relative flex flex-col bg-background">
       <SiteHeader />
       <div className="flex-1">{children}</div>
       <SiteFooter />

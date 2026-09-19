@@ -42,7 +42,8 @@ function CartPage() {
               <thead className="bg-muted/60 text-left">
                 <tr>
                   <th className="px-4 py-2 font-semibold">Product</th>
-                  <th className="px-4 py-2 font-semibold">Weight</th>
+                  <th className="px-4 py-2 font-semibold">Plan</th>
+                  <th className="px-4 py-2 font-semibold">Location</th>
                   <th className="px-4 py-2 font-semibold">Price</th>
                   <th className="px-4 py-2 font-semibold">Qty</th>
                   <th className="px-4 py-2 font-semibold">Subtotal</th>
@@ -51,13 +52,14 @@ function CartPage() {
               </thead>
               <tbody>
                 {cart.items.map((i) => (
-                  <tr key={`${i.productId}-${i.grams}`} className="border-t border-border">
+                  <tr key={`${i.productId}-${i.grams}-${i.location ?? ""}`} className="border-t border-border">
                     <td className="px-4 py-3">
                       <Link to="/product/$slug" params={{ slug: i.slug }} className="text-primary hover:underline">
                         {i.name}
                       </Link>
                     </td>
                     <td className="px-4 py-3">{unitLabel(i.grams, i.unitLabel)}</td>
+                    <td className="px-4 py-3">{i.location || "Any location"}</td>
                     <td className="px-4 py-3">{money(i.price, symbol)}</td>
                     <td className="px-4 py-3">
                       <input
@@ -66,14 +68,14 @@ function CartPage() {
                         max={50}
                         value={i.quantity}
                         aria-label={`Quantity for ${i.name}`}
-                        onChange={(e) => cart.setQuantity(i.productId, i.grams, Number(e.target.value) || 0)}
+                        onChange={(e) => cart.setQuantity(i.productId, i.grams, Number(e.target.value) || 0, i.location)}
                         className="w-16 px-2 py-1 border border-border rounded bg-card"
                       />
                     </td>
                     <td className="px-4 py-3">{money(i.price * i.quantity, symbol)}</td>
                     <td className="px-4 py-3 text-right">
                       <button
-                        onClick={() => cart.remove(i.productId, i.grams)}
+                        onClick={() => cart.remove(i.productId, i.grams, i.location)}
                         aria-label={`Remove ${i.name}`}
                         className="text-muted-foreground hover:text-destructive"
                       >

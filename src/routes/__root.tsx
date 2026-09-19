@@ -76,16 +76,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Drugs — Apothecary Coffee, Tea & Spices by the Gram" },
+      { title: "DeepProxy — residential and datacenter proxies" },
       {
         name: "description",
         content:
-          "Single-origin coffee, loose-leaf tea and whole spices sold by the gram. Crypto checkout, flat-rate shipping.",
+          "Private residential and datacenter proxies with precise city and state targeting and crypto checkout.",
       },
-      { property: "og:title", content: "Drugs — Apothecary Coffee, Tea & Spices" },
+      { property: "og:title", content: "DeepProxy — private proxy inventory" },
       {
         property: "og:description",
-        content: "Single-origin coffee, loose-leaf tea and whole spices sold by the gram.",
+        content: "Residential and datacenter proxies with location targeting and instant access.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

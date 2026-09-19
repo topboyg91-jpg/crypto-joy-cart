@@ -83,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add = useCallback((item: CartItem) => {
     setItems((prev) => {
-      const idx = prev.findIndex((i) => i.productId === item.productId && i.grams === item.grams);
+      const idx = prev.findIndex((i) => sameLine(i, item.productId, item.grams, item.location));
       if (idx === -1) return [...prev, item];
       const next = [...prev];
       next[idx] = { ...next[idx], quantity: next[idx].quantity + item.quantity };
@@ -91,16 +91,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const setQuantity = useCallback((productId: string, grams: number, quantity: number) => {
+  const setQuantity = useCallback((productId: string, grams: number, quantity: number, location?: string) => {
     setItems((prev) =>
       quantity <= 0
-        ? prev.filter((i) => !(i.productId === productId && i.grams === grams))
-        : prev.map((i) => (i.productId === productId && i.grams === grams ? { ...i, quantity } : i)),
+        ? prev.filter((i) => !sameLine(i, productId, grams, location))
+        : prev.map((i) => (sameLine(i, productId, grams, location) ? { ...i, quantity } : i)),
     );
   }, []);
 
-  const remove = useCallback((productId: string, grams: number) => {
-    setItems((prev) => prev.filter((i) => !(i.productId === productId && i.grams === grams)));
+  const remove = useCallback((productId: string, grams: number, location?: string) => {
+    setItems((prev) => prev.filter((i) => !sameLine(i, productId, grams, location)));
   }, []);
 
   const clear = useCallback(() => setItems([]), []);
