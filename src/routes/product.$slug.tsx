@@ -70,11 +70,6 @@ function ProductPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
-  const locations = useMemo(() => locationsForPlan(product?.slug ?? slug), [product?.slug, slug]);
-  const [areaCode, setAreaCode] = useState("");
-  const [city, setCity] = useState("");
-  const region = locations.find((entry) => entry.code === areaCode) ?? locations[0];
-  const selectedCity = city || region?.cities[0] || "";
 
   const tier = tiers.find((t) => t.id === selectedId) ?? tiers[0];
   const category = (categories ?? []).find((c) => c.id === product?.category_id);
@@ -111,7 +106,6 @@ function ProductPage() {
       unitLabel: unitLabel(Number(tier.grams), tier.unit_label),
       price: Number(tier.price),
       quantity,
-      location: region && selectedCity ? locationLabel(region, selectedCity) : undefined,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
