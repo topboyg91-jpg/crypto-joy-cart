@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useCart } from "@/lib/cart";
 import { useQuery } from "@tanstack/react-query";
 import { Globe2, Gauge, MapPin, Search, ShieldCheck, Wifi } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -31,6 +32,8 @@ export const Route = createFileRoute("/")({
 
 function ProxyStore() {
   const settings = useSettings();
+  const cart = useCart();
+  const navigate = useNavigate();
   const symbol = settings.currency_symbol ?? "$";
   const { data: products, isLoading } = useQuery(productsQuery);
   const { data: categories } = useQuery(categoriesQuery);
@@ -140,7 +143,7 @@ function ProxyStore() {
                     <td className="px-4 py-4">{category}</td><td className="px-4 py-4">SOCKS5 / HTTPS</td>
                     <td className="px-4 py-4"><span className="inline-flex items-center gap-1.5 rounded border border-panel-strong/40 px-2 py-1"><Gauge className="h-4 w-4" />{index % 2 ? "1 Gbps" : "500 Mbps"}</span></td>
                     <td className="px-4 py-4 font-black">{tier ? money(Number(tier.price), symbol) : "—"}</td>
-                    <td className="px-4 py-4"><Button asChild size="sm" className="w-full font-black"><Link to="/product/$slug" params={{ slug: product.slug }}>BUY</Link></Button></td>
+                    <td className="px-4 py-4"><Button size="sm" className="w-full font-black" disabled={!tier} onClick={() => { if (!tier) return; cart.add({ productId: product.id, slug: product.slug, name: product.name, grams: tier.grams, unitLabel: tier.unit_label, price: Number(tier.price), quantity: 1 }); navigate({ to: "/checkout" }); }}>BUY</Button></td>
                   </tr>
                 );
               })}
