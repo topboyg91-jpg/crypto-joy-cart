@@ -74,6 +74,16 @@ export type OrderRow = {
   payment_confirmed_at: string | null;
   status: string;
   created_at: string;
+  /** Proxy order lines (new proxy store). */
+  items?: {
+    name: string;
+    type: string;
+    location: string;
+    protocol: string;
+    speed: string;
+    price: number;
+    quantity: number;
+  }[] | null;
 };
 
 const sel = (s: string): string => s;
