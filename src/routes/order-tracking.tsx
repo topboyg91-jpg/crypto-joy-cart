@@ -1,29 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageWithSidebar, useSettings } from "@/components/site-chrome";
 import { CopyableAddress, PaymentQr } from "@/components/crypto-payment";
-import { PaymentConfirmForm } from "@/components/payment-confirm";
+import { PaymentConfirmForm, REPORTED_STATUS } from "@/components/payment-confirm";
 import { supabase } from "@/integrations/supabase/client";
-import { money, unitLabel, type OrderRow } from "@/lib/store";
+import { money, type OrderRow } from "@/lib/store";
 
 type Item = {
-  id: string;
-  product_name: string;
-  grams: number;
-  unit_label?: string | null;
-  unit_price: number;
+  name: string;
+  type: string;
+  location: string;
+  protocol: string;
+  speed: string;
+  price: number;
   quantity: number;
-  line_total: number;
 };
 
 export const Route = createFileRoute("/order-tracking")({
   head: () => ({
     meta: [
-      { title: "Order tracking — check your order status" },
+      { title: "Order tracking — check your proxy order status" },
       { name: "description", content: "Look up an order by order number or email address to see its current status." },
       { property: "og:title", content: "Order tracking" },
       { property: "og:description", content: "Look up an order by number or email." },
-          { property: "og:url", content: "https://www.deepshop.space/order-tracking" },
+      { property: "og:url", content: "https://www.deepshop.space/order-tracking" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/order-tracking" }],
   }),
@@ -35,7 +35,6 @@ function OrderTrackingPage() {
   const symbol = settings.currency_symbol ?? "$";
   const [query, setQuery] = useState("");
   const [order, setOrder] = useState<OrderRow | null>(null);
-  const [items, setItems] = useState<Item[]>([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -45,6 +44,7 @@ function OrderTrackingPage() {
     if (!q) return;
     setLoading(true);
     setSearched(true);
+    setOrder(null);
     const { data } = await supabase
       .from("orders")
       .select("*")
@@ -52,16 +52,11 @@ function OrderTrackingPage() {
       .order("created_at", { ascending: false })
       .limit(1)
       .returns<OrderRow[]>();
-    const found = data?.[0] ?? null;
-    setOrder(found);
-    if (found) {
-      const { data: rows } = await supabase.from("order_items").select("*").eq("order_id", found.id).returns<Item[]>();
-      setItems(rows ?? []);
-    } else {
-      setItems([]);
-    }
+    setOrder(data?.[0] ?? null);
     setLoading(false);
   };
+
+  const items: Item[] = Array.isArray(order?.items) ? (order!.items as unknown as Item[]) : [];
 
   return (
     <PageWithSidebar>
@@ -72,7 +67,7 @@ function OrderTrackingPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ORD-XXXXXX or email"
+          placeholder="PX-XXXXXX or email"
           aria-label="Order number or email"
           className="flex-1 px-3 py-2 border border-border rounded bg-card text-sm"
         />
@@ -105,69 +100,54 @@ function OrderTrackingPage() {
           <table className="w-full border border-border">
             <thead className="bg-muted/60 text-left">
               <tr>
-                <th className="px-3 py-2 font-semibold">Product</th>
-                <th className="px-3 py-2 font-semibold">Weight</th>
+                <th className="px-3 py-2 font-semibold">Proxy</th>
+                <th className="px-3 py-2 font-semibold">Location</th>
                 <th className="px-3 py-2 font-semibold">Qty</th>
                 <th className="px-3 py-2 font-semibold">Total</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((i) => (
-                <tr key={i.id} className="border-t border-border">
-                  <td className="px-3 py-2">{i.product_name}</td>
-                  <td className="px-3 py-2">{unitLabel(Number(i.grams), i.unit_label)}</td>
+              {items.map((i, idx) => (
+                <tr key={`${i.name}-${idx}`} className="border-t border-border">
+                  <td className="px-3 py-2">
+                    {i.name} <span className="text-muted-foreground">({i.type}, 24h)</span>
+                  </td>
+                  <td className="px-3 py-2">{i.location}</td>
                   <td className="px-3 py-2">{i.quantity}</td>
-                  <td className="px-3 py-2">{money(Number(i.line_total), symbol)}</td>
+                  <td className="px-3 py-2">{money(Number(i.price) * i.quantity, symbol)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <p className="text-muted-foreground">Shipping</p>
-              <p>{order.shipping_label || "—"}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Total</p>
-              <p className="font-semibold">{money(Number(order.total), symbol)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Paid with</p>
-              <p>{order.payment_code || "—"}</p>
-            </div>
-            <div className="min-w-0">
-              <p className="text-muted-foreground">Payment address</p>
-              {order.payment_address ? (
-                <div className="mt-1">
-                  <CopyableAddress value={order.payment_address} />
-                </div>
-              ) : (
-                <p>—</p>
-              )}
-            </div>
-          </div>
+          <p className="font-semibold">Total {money(Number(order.total), symbol)}</p>
 
-          {order.payment_address && !order.payment_confirmed_at && (
-            <div className="border-t border-border pt-4 flex flex-wrap gap-6">
-              <div className="min-w-0 flex-1">
-                <PaymentConfirmForm
-                  orderNumber={order.order_number}
-                  initialTxid={order.payment_txid ?? ""}
-                  initialReported={Boolean(order.payment_reported_at)}
-                />
+          <div className="border-t border-border pt-4">
+            <p className="text-muted-foreground">Payment</p>
+            <div className="mt-2 flex flex-wrap items-start gap-6">
+              <div className="min-w-0 flex-1 space-y-2">
+                <CopyableAddress value={order.payment_address} />
+                <p className="text-muted-foreground">
+                  Send {money(Number(order.total), symbol)} worth of {order.payment_code}
+                </p>
               </div>
               <PaymentQr code={order.payment_code} address={order.payment_address} size={116} />
             </div>
-          )}
-
-          {order.payment_confirmed_at && (
-            <p className="border-t border-border pt-4 text-xs text-primary font-semibold">
-              Payment confirmed on {new Date(order.payment_confirmed_at).toLocaleString()}
-            </p>
-          )}
+            {order.status !== "Awaiting payment" && order.status !== REPORTED_STATUS && (
+              <p className="mt-3 text-primary font-semibold">Payment confirmed — your proxies were delivered by email.</p>
+            )}
+            {(order.status === "Awaiting payment" || order.status === REPORTED_STATUS) && (
+              <div className="mt-3">
+                <PaymentConfirmForm orderNumber={order.order_number} />
+              </div>
+            )}
+          </div>
         </div>
       )}
+
+      <Link to="/" className="mt-8 inline-block text-sm text-primary hover:underline">
+        Back to the proxy store
+      </Link>
     </PageWithSidebar>
   );
 }
