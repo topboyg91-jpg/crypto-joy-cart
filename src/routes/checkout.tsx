@@ -1,20 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import deliveryMap from "@/assets/express-delivery-map.jpg";
 import { PageWithSidebar, useSettings } from "@/components/site-chrome";
 import { CopyableAddress, PaymentQr } from "@/components/crypto-payment";
 import { PaymentConfirmForm } from "@/components/payment-confirm";
 import { useCart, type PlacedOrder } from "@/lib/cart";
-import { money, paymentMethodsQuery, shippingOptionsQuery, unitLabel } from "@/lib/store";
+import { money, paymentMethodsQuery } from "@/lib/store";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "Checkout — pay for your RDP in crypto" },
+      { title: "Checkout — pay for your 24-hour proxy in crypto" },
       {
         name: "description",
-        content: "Enter your contact details, pick a delivery speed and pay with Bitcoin or Monero.",
+        content: "Enter your contact details and pay with Bitcoin or Monero for instant proxy access.",
       },
       { property: "og:title", content: "Checkout" },
       { property: "og:description", content: "Contact details and crypto payment." },
@@ -28,15 +27,11 @@ function CheckoutPage() {
   const cart = useCart();
   const settings = useSettings();
   const symbol = settings.currency_symbol ?? "$";
-  const { data: shippingOptions } = useQuery(shippingOptionsQuery);
   const { data: paymentMethods } = useQuery(paymentMethodsQuery);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
+  const [telegram, setTelegram] = useState("");
   const [notes, setNotes] = useState("");
-  const [shippingId, setShippingId] = useState<string>("");
   const [paymentId, setPaymentId] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -45,26 +40,15 @@ function CheckoutPage() {
   const enabledPayments = (paymentMethods ?? []).filter((p) => p.is_enabled);
 
   useEffect(() => {
-    if (!shippingId && shippingOptions?.length) {
-      setShippingId((shippingOptions.find((s) => s.is_default) ?? shippingOptions[0]).id);
-    }
-  }, [shippingOptions, shippingId]);
-
-  useEffect(() => {
     if (!paymentId && enabledPayments.length) setPaymentId(enabledPayments[0].id);
   }, [enabledPayments, paymentId]);
 
-  const shipping = (shippingOptions ?? []).find((s) => s.id === shippingId);
   const payment = enabledPayments.find((p) => p.id === paymentId);
-  const shippingPrice = Number(shipping?.price ?? 0);
-  const total = cart.subtotal + shippingPrice;
+  const total = cart.subtotal;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
-    if (firstName.trim().length < 2) next.firstName = "First name is required.";
-    if (lastName.trim().length < 2) next.lastName = "Last name is required.";
-    
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = "A valid email address is required.";
     if (!payment) next.payment = "Select a payment method.";
     if (cart.items.length === 0) next.cart = "Your cart is empty.";
@@ -74,13 +58,9 @@ function CheckoutPage() {
     setSubmitting(true);
     try {
       const order = await cart.placeOrder({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        address: address.trim(),
         email: email.trim(),
+        telegram: telegram.trim(),
         notes: notes.trim(),
-        shippingLabel: shipping ? `${shipping.label} ${shipping.description}`.trim() : "",
-        shippingPrice,
         paymentCode: payment!.code,
         paymentAddress: payment!.address,
       });
@@ -97,8 +77,8 @@ function CheckoutPage() {
       <PageWithSidebar>
         <h2 className="text-3xl font-bold text-primary">Order received</h2>
         <p className="mt-3 text-sm text-foreground/70">
-          Send exactly {money(placed.total, symbol)} worth of {placed.paymentCode} to the address below. Updates go to{" "}
-          {placed.email}.
+          Send exactly {money(placed.total, symbol)} worth of {placed.paymentCode} to the address below. Your proxy details
+          go to {placed.email} once payment confirms.
         </p>
         <div className="mt-6 bg-card/95 border border-border rounded p-6 space-y-4 text-sm">
           <div>
@@ -136,107 +116,58 @@ function CheckoutPage() {
       <h2 className="text-3xl font-bold">Checkout</h2>
 
       <form onSubmit={submit} className="mt-6">
-        <div className="grid gap-8 md:grid-cols-2">
-          <section>
-            <h3 className="text-primary font-semibold">Your details</h3>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <Field label="First name" required error={errors.firstName}>
-                <input
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
-                />
-              </Field>
-              <Field label="Last name" required error={errors.lastName}>
-                <input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
-                />
-              </Field>
-            </div>
-            <div className="mt-4">
-              <Field label="Telegram or Jabber (optional)" error={errors.address}>
-                <textarea
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
-                />
-              </Field>
-            </div>
-            <div className="mt-4">
-              <Field label="Email address" required error={errors.email}>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
-                />
-              </Field>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-primary font-semibold">Additional information</h3>
-            <div className="mt-4">
-              <Field label="Order Notes (optional)">
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={5}
-                  placeholder="Notes about your order, e.g. special notes for delivery."
-                  className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
-                />
-              </Field>
-            </div>
-          </section>
-        </div>
+        <section>
+          <h3 className="text-primary font-semibold">Your details</h3>
+          <div className="mt-4 max-w-md space-y-4">
+            <Field label="Email address" required error={errors.email}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
+              />
+            </Field>
+            <Field label="Telegram or Jabber (optional)">
+              <input
+                value={telegram}
+                onChange={(e) => setTelegram(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
+              />
+            </Field>
+            <Field label="Order notes (optional)">
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+                placeholder="Notes for support, e.g. preferred delivery window."
+                className="w-full px-3 py-2 border border-border rounded bg-card text-sm"
+              />
+            </Field>
+          </div>
+        </section>
 
         <h3 className="mt-10 text-primary font-semibold">Your order</h3>
         <table className="mt-3 w-full text-sm border border-border bg-card/95">
           <thead>
             <tr className="bg-muted/60 text-left">
-              <th className="px-3 py-2 font-semibold border-b border-border">Product</th>
+              <th className="px-3 py-2 font-semibold border-b border-border">Proxy</th>
+              <th className="px-3 py-2 font-semibold border-b border-border">Qty</th>
               <th className="px-3 py-2 font-semibold border-b border-border">Subtotal</th>
             </tr>
           </thead>
           <tbody>
             {cart.items.map((i) => (
-              <tr key={`${i.productId}-${i.grams}`} className="border-b border-border">
+              <tr key={i.listingId} className="border-b border-border">
                 <td className="px-3 py-2">
-                  {i.name} ({unitLabel(i.grams, i.unitLabel)}) <span className="text-muted-foreground">× {i.quantity}</span>
+                  {i.name} — {i.location} <span className="text-muted-foreground">({i.type}, 24h)</span>
                 </td>
+                <td className="px-3 py-2">× {i.quantity}</td>
                 <td className="px-3 py-2 text-primary">{money(i.price * i.quantity, symbol)}</td>
               </tr>
             ))}
-            <tr className="border-b border-border">
-              <td className="px-3 py-2 font-semibold">Subtotal</td>
-              <td className="px-3 py-2 text-primary">{money(cart.subtotal, symbol)}</td>
-            </tr>
-            <tr className="border-b border-border align-top">
-              <td className="px-3 py-2 font-semibold">Delivery</td>
-              <td className="px-3 py-2">
-                <div className="space-y-1">
-                  {(shippingOptions ?? []).map((s) => (
-                    <label key={s.id} className="flex items-center gap-2 text-primary">
-                      <input
-                        type="radio"
-                        name="shipping"
-                        checked={shippingId === s.id}
-                        onChange={() => setShippingId(s.id)}
-                      />
-                      <span>
-                        {s.label} {s.description}
-                        {Number(s.price) > 0 ? `: ${money(Number(s.price), symbol)}` : ""}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </td>
-            </tr>
             <tr>
               <td className="px-3 py-2 font-semibold">Total</td>
+              <td />
               <td className="px-3 py-2 text-primary font-semibold">{money(total, symbol)}</td>
             </tr>
           </tbody>
@@ -275,37 +206,14 @@ function CheckoutPage() {
           <p className="mt-4 text-sm text-destructive">{errors.cart ?? errors.submit}</p>
         )}
 
-        <div className="mt-4 space-y-3">
-          <button
-            type="button"
-            onClick={() => setErrors({})}
-            className="px-4 py-1.5 border border-primary text-primary rounded text-sm hover:bg-primary hover:text-primary-foreground transition"
-          >
-            Update Totals
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="block w-full border border-primary text-primary rounded py-2.5 text-sm font-medium hover:bg-primary hover:text-primary-foreground transition disabled:opacity-50"
-          >
-            {submitting ? "Placing order…" : "Place order"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="mt-4 block w-full border border-primary text-primary rounded py-2.5 text-sm font-medium hover:bg-primary hover:text-primary-foreground transition disabled:opacity-50"
+        >
+          {submitting ? "Placing order…" : "Place order"}
+        </button>
       </form>
-
-      <section className="mt-14 text-center">
-        <h3 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-brand)" }}>
-          Express Delivery
-        </h3>
-        <img
-          src={deliveryMap}
-          alt="World map showing express delivery times by region"
-          loading="lazy"
-          width={1280}
-          height={704}
-          className="mt-4 w-full h-auto"
-        />
-      </section>
     </PageWithSidebar>
   );
 }
