@@ -152,6 +152,7 @@ export type Database = {
           email: string
           first_name: string
           id: string
+          items: Json | null
           last_name: string
           notes: string
           order_number: string
@@ -172,6 +173,7 @@ export type Database = {
           email: string
           first_name: string
           id?: string
+          items?: Json | null
           last_name: string
           notes?: string
           order_number: string
@@ -192,6 +194,7 @@ export type Database = {
           email?: string
           first_name?: string
           id?: string
+          items?: Json | null
           last_name?: string
           notes?: string
           order_number?: string

@@ -1,30 +1,37 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { locationLabel, type ProxyListing } from "@/lib/proxy-inventory";
 
 export type CartItem = {
-  productId: string;
-  slug: string;
+  listingId: string;
   name: string;
-  grams: number;
-  unitLabel?: string;
-  /** Chosen datacenter location, e.g. "Dallas, TX". */
-  location?: string;
+  type: string;
+  /** "City, Region" of the chosen proxy. */
+  location: string;
+  protocol: string;
+  speed: string;
+  /** USD price for one 24-hour proxy. */
   price: number;
   quantity: number;
 };
 
-const sameLine = (i: CartItem, productId: string, grams: number, location?: string) =>
-  i.productId === productId && i.grams === grams && (i.location ?? "") === (location ?? "");
-
+export function cartItemFromListing(listing: ProxyListing, quantity = 1): CartItem {
+  return {
+    listingId: listing.id,
+    name: listing.name,
+    type: listing.type,
+    location: locationLabel(listing),
+    protocol: listing.protocol,
+    speed: listing.speed,
+    price: listing.price,
+    quantity,
+  };
+}
 
 export type PlaceOrderInput = {
-  firstName: string;
-  lastName: string;
-  address: string;
   email: string;
+  telegram: string;
   notes: string;
-  shippingLabel: string;
-  shippingPrice: number;
   paymentCode: string;
   paymentAddress: string;
 };
@@ -37,7 +44,7 @@ export type PlacedOrder = {
   email: string;
 };
 
-const CART_KEY = "shop.cart.grams.v1";
+const CART_KEY = "shop.cart.proxy.v1";
 
 function readCart(): CartItem[] {
   if (typeof window === "undefined") return [];
@@ -55,8 +62,8 @@ type CartContextValue = {
   subtotal: number;
   hydrated: boolean;
   add: (item: CartItem) => void;
-  setQuantity: (productId: string, grams: number, quantity: number, location?: string) => void;
-  remove: (productId: string, grams: number, location?: string) => void;
+  setQuantity: (listingId: string, quantity: number) => void;
+  remove: (listingId: string) => void;
   clear: () => void;
   placeOrder: (details: PlaceOrderInput) => Promise<PlacedOrder>;
 };
@@ -83,7 +90,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add = useCallback((item: CartItem) => {
     setItems((prev) => {
-      const idx = prev.findIndex((i) => sameLine(i, item.productId, item.grams, item.location));
+      const idx = prev.findIndex((i) => i.listingId === item.listingId);
       if (idx === -1) return [...prev, item];
       const next = [...prev];
       next[idx] = { ...next[idx], quantity: next[idx].quantity + item.quantity };
@@ -91,16 +98,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const setQuantity = useCallback((productId: string, grams: number, quantity: number, location?: string) => {
+  const setQuantity = useCallback((listingId: string, quantity: number) => {
     setItems((prev) =>
       quantity <= 0
-        ? prev.filter((i) => !sameLine(i, productId, grams, location))
-        : prev.map((i) => (sameLine(i, productId, grams, location) ? { ...i, quantity } : i)),
+        ? prev.filter((i) => i.listingId !== listingId)
+        : prev.map((i) => (i.listingId === listingId ? { ...i, quantity } : i)),
     );
   }, []);
 
-  const remove = useCallback((productId: string, grams: number, location?: string) => {
-    setItems((prev) => prev.filter((i) => !sameLine(i, productId, grams, location)));
+  const remove = useCallback((listingId: string) => {
+    setItems((prev) => prev.filter((i) => i.listingId !== listingId));
   }, []);
 
   const clear = useCallback(() => setItems([]), []);
@@ -110,44 +117,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const placeOrder = useCallback<CartContextValue["placeOrder"]>(
     async (details) => {
-      const orderNumber = `ORD-${Date.now().toString(36).toUpperCase().slice(-6)}`;
-      const total = subtotal + details.shippingPrice;
+      const orderNumber = `PX-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+      const total = subtotal;
 
-      const { data: order, error } = await supabase
+      const { error } = await supabase
         .from("orders")
         .insert({
           order_number: orderNumber,
-          first_name: details.firstName,
-          last_name: details.lastName,
-          address: details.address,
+          first_name: "",
+          last_name: "",
+          address: details.telegram,
           email: details.email,
           notes: details.notes,
-          shipping_label: details.shippingLabel,
-          shipping_price: details.shippingPrice,
+          shipping_label: "Instant activation",
+          shipping_price: 0,
           subtotal,
           total,
           payment_code: details.paymentCode,
           payment_address: details.paymentAddress,
           status: "Awaiting payment",
-        })
-        .select("id")
-        .single();
-
+          items: items.map((i) => ({
+            name: i.name,
+            type: i.type,
+            location: i.location,
+            protocol: i.protocol,
+            speed: i.speed,
+            price: i.price,
+            quantity: i.quantity,
+          })),
+        });
       if (error) throw error;
-
-      const rows = items.map((i) => ({
-        order_id: (order as { id: string }).id,
-        product_name: i.name,
-        grams: i.grams,
-        unit_label: i.unitLabel ?? "",
-        unit_price: i.price,
-        quantity: i.quantity,
-        line_total: i.price * i.quantity,
-      }));
-      if (rows.length > 0) {
-        const { error: itemError } = await supabase.from("order_items").insert(rows);
-        if (itemError) throw itemError;
-      }
 
       setItems([]);
       return {

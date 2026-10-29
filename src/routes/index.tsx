@@ -1,26 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCart } from "@/lib/cart";
-import { useQuery } from "@tanstack/react-query";
-import { Globe2, Gauge, MapPin, Search, ShieldCheck, Wifi } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Gauge, MapPin, Search, ShieldCheck, Timer, Wifi } from "lucide-react";
 import { PageBackground, useSettings } from "@/components/site-chrome";
 import { Button } from "@/components/ui/button";
-import { categoriesQuery, money, productsQuery } from "@/lib/store";
-import { locationsForPlan } from "@/lib/rdp-locations";
-
-type ShopSearch = { q?: string; category?: string };
+import { useCart, cartItemFromListing } from "@/lib/cart";
+import { COUNTRY_GROUPS, PROXY_LISTINGS, type ProxyListing } from "@/lib/proxy-inventory";
+import { money } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>): ShopSearch => ({
-    q: typeof search.q === "string" && search.q ? search.q : undefined,
-    category: typeof search.category === "string" && search.category ? search.category : undefined,
-  }),
   head: () => ({
     meta: [
-      { title: "DeepProxy — residential and datacenter proxy store" },
-      { name: "description", content: "Buy private residential and datacenter proxies by country, state, and city with crypto checkout." },
-      { property: "og:title", content: "DeepProxy — private proxy inventory" },
-      { property: "og:description", content: "Location-targeted private proxies with instant access." },
+      { title: "DeepProxy — 24-hour residential, datacenter & mobile proxies" },
+      { name: "description", content: "Buy private 24-hour proxies by country, state, and city. Crypto checkout with Bitcoin and Monero." },
+      { property: "og:title", content: "DeepProxy — 24-hour private proxy inventory" },
+      { property: "og:description", content: "Location-targeted 24-hour proxies with instant access and crypto payment." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://www.deepshop.space/" },
@@ -35,41 +28,39 @@ function ProxyStore() {
   const cart = useCart();
   const navigate = useNavigate();
   const symbol = settings.currency_symbol ?? "$";
-  const { data: products, isLoading } = useQuery(productsQuery);
-  const { data: categories } = useQuery(categoriesQuery);
   const [country, setCountry] = useState("all");
-  const [state, setState] = useState("all");
+  const [region, setRegion] = useState("all");
   const [city, setCity] = useState("all");
-  const [network, setNetwork] = useState("all");
+  const [type, setType] = useState("all");
   const [query, setQuery] = useState("");
 
-  const active = (products ?? []).filter((product) => product.is_active);
-  const regions = useMemo(() => {
-    const seen = new Map<string, ReturnType<typeof locationsForPlan>[number]>();
-    for (const product of active) {
-      for (const region of locationsForPlan(product.slug)) seen.set(`${region.area}-${region.code}`, region);
-    }
-    return [...seen.values()];
-  }, [active]);
-  const countries = [
-    { value: "usa", label: "United States" },
-    { value: "europe", label: "Europe" },
-    { value: "asia", label: "Asia" },
-  ];
-  const matchingRegions = country === "all"
-    ? regions
-    : regions.filter((region) => {
-        const pool = locationsForPlan(country);
-        return pool.some((candidate) => candidate.code === region.code);
-      });
-  const matchingCities = state === "all" ? [] : matchingRegions.find((region) => region.code === state)?.cities ?? [];
-  const visible = active.filter((product) => {
-    const text = `${product.name} ${product.description}`.toLowerCase();
-    if (query && !text.includes(query.toLowerCase())) return false;
-    if (country !== "all" && !product.slug.includes(country) && !product.name.toLowerCase().includes(country)) return false;
-    if (network !== "all" && !text.includes(network)) return false;
-    return true;
-  });
+  const byCountry = useMemo(
+    () => (country === "all" ? PROXY_LISTINGS : PROXY_LISTINGS.filter((l) => l.countryGroup === country)),
+    [country],
+  );
+  const regionOptions = useMemo(
+    () => [...new Set(byCountry.map((l) => l.region))].sort(),
+    [byCountry],
+  );
+  const cityOptions = useMemo(
+    () =>
+      [...new Set((region === "all" ? byCountry : byCountry.filter((l) => l.region === region)).map((l) => l.city))].sort(),
+    [byCountry, region],
+  );
+  const visible = byCountry
+    .filter((l) => (region === "all" ? true : l.region === region))
+    .filter((l) => (city === "all" ? true : l.city === city))
+    .filter((l) => (type === "all" ? true : l.type === type))
+    .filter((l) => {
+      if (!query) return true;
+      const text = `${l.name} ${l.city} ${l.region} ${l.country} ${l.type}`.toLowerCase();
+      return text.includes(query.toLowerCase());
+    });
+
+  const buy = (listing: ProxyListing) => {
+    cart.add(cartItemFromListing(listing));
+    navigate({ to: "/checkout" });
+  };
 
   return (
     <PageBackground>
@@ -77,20 +68,20 @@ function ProxyStore() {
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 lg:grid-cols-[1.25fr_0.75fr] lg:py-16">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/50 px-3 py-1.5 text-xs font-bold text-primary">
-              <ShieldCheck className="h-4 w-4" /> Private access available
+              <Timer className="h-4 w-4" /> 24-hour proxies — no subscriptions
             </div>
             <h1 className="mt-6 max-w-3xl text-4xl font-black leading-tight sm:text-6xl">
-              Premium <span className="text-primary">Residential Proxies</span><br />from around the world
+              Premium <span className="text-primary">24-Hour Proxies</span><br />from around the world
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-              Choose a country, state, and city. Get private access with clear terms and crypto payment.
+              Pick a country, state, and city. Each proxy runs for exactly 24 hours — pay in crypto and get instant access.
             </p>
             <Button asChild className="mt-7 h-12 px-7 font-black"><a href="#inventory">Browse inventory</a></Button>
           </div>
           <div className="grid content-center gap-3">
             {[
-              [Globe2, "Global coverage", "USA, Europe and Asia"],
-              [Wifi, "Residential & datacenter", "Private connections"],
+              [Globe2Icon, "Global coverage", "USA, Europe and Asia"],
+              [Wifi, "Residential, datacenter & mobile", "Private connections"],
               [ShieldCheck, "Secure checkout", "Bitcoin and Monero"],
             ].map(([Icon, title, copy]) => (
               <div key={String(title)} className="flex items-center gap-4 rounded border border-border bg-background/60 p-4">
@@ -104,22 +95,22 @@ function ProxyStore() {
 
       <main id="inventory" className="mx-auto w-full max-w-7xl px-5 py-10">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div><p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Live catalogue</p><h2 className="mt-1 text-3xl font-black">Proxy Store</h2></div>
-          <p className="text-sm text-muted-foreground">{visible.length} plans available</p>
+          <div><p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Live inventory</p><h2 className="mt-1 text-3xl font-black">Proxy Store</h2></div>
+          <p className="text-sm text-muted-foreground">{visible.length} proxies available for the next 24 hours</p>
         </div>
 
         <div className="grid gap-3 rounded-t border border-border bg-panel p-4 text-primary-foreground md:grid-cols-2 lg:grid-cols-5">
-          <select value={country} onChange={(e) => { setCountry(e.target.value); setState("all"); setCity("all"); }} aria-label="Country" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground">
-            <option value="all">All countries</option>{countries.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          <select value={country} onChange={(e) => { setCountry(e.target.value); setRegion("all"); setCity("all"); }} aria-label="Country" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground">
+            <option value="all">All countries</option>{COUNTRY_GROUPS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
-          <select value={state} onChange={(e) => { setState(e.target.value); setCity("all"); }} aria-label="State or country" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground">
-            <option value="all">All states / regions</option>{matchingRegions.map((region) => <option key={region.code} value={region.code}>{region.area}</option>)}
+          <select value={region} onChange={(e) => { setRegion(e.target.value); setCity("all"); }} aria-label="State or region" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground">
+            <option value="all">All states / regions</option>{regionOptions.map((name) => <option key={name} value={name}>{name}</option>)}
           </select>
-          <select value={city} onChange={(e) => setCity(e.target.value)} aria-label="City" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground" disabled={state === "all"}>
-            <option value="all">All cities</option>{matchingCities.map((name) => <option key={name} value={name}>{name}</option>)}
+          <select value={city} onChange={(e) => setCity(e.target.value)} aria-label="City" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground" disabled={region === "all"}>
+            <option value="all">All cities</option>{cityOptions.map((name) => <option key={name} value={name}>{name}</option>)}
           </select>
-          <select value={network} onChange={(e) => setNetwork(e.target.value)} aria-label="Proxy type" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground">
-            <option value="all">All proxy types</option><option value="residential">Residential</option><option value="admin">Datacenter</option><option value="vps">VPS</option>
+          <select value={type} onChange={(e) => setType(e.target.value)} aria-label="Proxy type" className="h-11 rounded border border-border bg-background px-3 text-sm text-foreground">
+            <option value="all">All proxy types</option><option value="Residential">Residential</option><option value="Datacenter">Datacenter</option><option value="Mobile">Mobile</option>
           </select>
           <label className="flex h-11 items-center gap-2 rounded border border-border bg-background px-3">
             <Search className="h-4 w-4 text-muted-foreground" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search inventory" className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none" />
@@ -127,32 +118,42 @@ function ProxyStore() {
         </div>
 
         <div className="overflow-x-auto rounded-b border-x border-b border-border bg-panel text-primary-foreground">
-          <table className="w-full min-w-[860px] text-left text-sm">
+          <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-panel-strong text-xs uppercase text-foreground">
-              <tr><th className="px-4 py-4">Plan</th><th className="px-4 py-4">Coverage</th><th className="px-4 py-4">Type</th><th className="px-4 py-4">Protocol</th><th className="px-4 py-4">Speed</th><th className="px-4 py-4">Price</th><th className="px-4 py-4" /></tr>
+              <tr><th className="px-4 py-4">Proxy</th><th className="px-4 py-4">Location</th><th className="px-4 py-4">Type</th><th className="px-4 py-4">Protocol</th><th className="px-4 py-4">Speed</th><th className="px-4 py-4">IPs</th><th className="px-4 py-4">Price / 24h</th><th className="px-4 py-4" /></tr>
             </thead>
             <tbody className="text-panel-strong">
-              {visible.map((product, index) => {
-                const locations = locationsForPlan(product.slug);
-                const tier = product.product_prices[0];
-                const category = (categories ?? []).find((entry) => entry.id === product.category_id)?.name ?? "Private proxy";
-                return (
-                  <tr key={product.id} className="border-t border-border/50 hover:bg-background/5">
-                    <td className="px-4 py-4"><p className="font-bold">{product.name}</p><p className="mt-1 text-xs opacity-65">Private access</p></td>
-                    <td className="px-4 py-4"><span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{locations.length} regions</span></td>
-                    <td className="px-4 py-4">{category}</td><td className="px-4 py-4">SOCKS5 / HTTPS</td>
-                    <td className="px-4 py-4"><span className="inline-flex items-center gap-1.5 rounded border border-panel-strong/40 px-2 py-1"><Gauge className="h-4 w-4" />{index % 2 ? "1 Gbps" : "500 Mbps"}</span></td>
-                    <td className="px-4 py-4 font-black">{tier ? money(Number(tier.price), symbol) : "—"}</td>
-                    <td className="px-4 py-4"><Button size="sm" className="w-full font-black" disabled={!tier} onClick={() => { if (!tier) return; cart.add({ productId: product.id, slug: product.slug, name: product.name, grams: tier.grams, unitLabel: tier.unit_label, price: Number(tier.price), quantity: 1 }); navigate({ to: "/checkout" }); }}>BUY</Button></td>
-                  </tr>
-                );
-              })}
-              {!isLoading && visible.length === 0 && <tr><td colSpan={7} className="px-4 py-12 text-center">No proxy plans match these filters.</td></tr>}
-              {isLoading && <tr><td colSpan={7} className="px-4 py-12 text-center">Loading inventory…</td></tr>}
+              {visible.map((listing) => (
+                <tr key={listing.id} className="border-t border-border/50 hover:bg-background/5">
+                  <td className="px-4 py-4"><p className="font-bold">{listing.name}</p><p className="mt-1 text-xs opacity-65">24-hour access</p></td>
+                  <td className="px-4 py-4"><span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{listing.city}, {listing.region} — {listing.country}</span></td>
+                  <td className="px-4 py-4">{listing.type}</td>
+                  <td className="px-4 py-4">{listing.protocol}</td>
+                  <td className="px-4 py-4"><span className="inline-flex items-center gap-1.5 rounded border border-panel-strong/40 px-2 py-1"><Gauge className="h-4 w-4" />{listing.speed}</span></td>
+                  <td className="px-4 py-4">{listing.ips}</td>
+                  <td className="px-4 py-4 font-black">{money(listing.price, symbol)}</td>
+                  <td className="px-4 py-4"><Button size="sm" className="w-full font-black" onClick={() => buy(listing)}>BUY</Button></td>
+                </tr>
+              ))}
+              {visible.length === 0 && <tr><td colSpan={8} className="px-4 py-12 text-center">No proxies match these filters.</td></tr>}
             </tbody>
           </table>
         </div>
+
+        <p className="mt-4 text-xs text-muted-foreground">
+          Every listing is a single private IP rented for 24 hours from payment confirmation. Replacement or refund is handled through <a className="text-primary hover:underline" href="/contact">support</a>.
+        </p>
       </main>
     </PageBackground>
+  );
+}
+
+function Globe2Icon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={props.className}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+      <path d="M2 12h20" />
+    </svg>
   );
 }
