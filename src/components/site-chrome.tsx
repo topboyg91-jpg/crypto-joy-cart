@@ -1,18 +1,10 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Globe2, Menu, Search, ShieldCheck, ShoppingCart, X } from "lucide-react";
+import { Globe2, Menu, ShieldCheck, ShoppingCart, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { isAdminUnlocked } from "@/lib/admin-gate";
 import { useCart } from "@/lib/cart";
-import { ProductImage } from "@/lib/product-image";
-import {
-  categoriesQuery,
-  money,
-  priceRange,
-  productsQuery,
-  settingsMap,
-  settingsQuery,
-} from "@/lib/store";
+import { settingsMap, settingsQuery } from "@/lib/store";
 
 /** Admin link only appears once this browser has unlocked the admin password. */
 function AdminFooterLink() {
@@ -36,7 +28,6 @@ const NAV = [
   { label: "ABOUT US", to: "/about" },
   { label: "CONTACT US", to: "/contact" },
   { label: "MESSAGE TRACKING", to: "/message-tracking" },
-
 ] as const;
 
 export function useSettings() {
@@ -45,18 +36,9 @@ export function useSettings() {
 }
 
 export function SiteHeader() {
-  const navigate = useNavigate();
   const cart = useCart();
   const settings = useSettings();
-  const { data: categories } = useQuery(categoriesQuery);
-  const [term, setTerm] = useState("");
-  const [category, setCategory] = useState("all");
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate({ to: "/", search: { q: term || undefined, category: category === "all" ? undefined : category } });
-  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
@@ -84,114 +66,60 @@ export function SiteHeader() {
       </div>
       {menuOpen && (
         <nav className="grid gap-1 border-t border-border bg-card px-5 py-4 lg:hidden">
-          {NAV.slice(0, 8).map((item) => <Link key={item.to} to={item.to} className="rounded px-3 py-2 text-sm hover:bg-accent">{item.label}</Link>)}
+          {NAV.map((item) => <Link key={item.to} to={item.to} className="rounded px-3 py-2 text-sm hover:bg-accent">{item.label}</Link>)}
         </nav>
       )}
-      <div className="hidden">
-        <form onSubmit={submit}>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="all">All Categories</option>
-            {(categories ?? []).map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-          </select>
-          <input value={term} onChange={(e) => setTerm(e.target.value)} />
-          <button type="submit"><Search /></button>
-        </form>
-      </div>
     </header>
   );
 }
 
-/** Right-hand column: search, grouped categories and a product list. */
+/** Right-hand column: store links and quick help. */
 export function ShopSidebar() {
-  const navigate = useNavigate();
-  const settings = useSettings();
-  const symbol = settings.currency_symbol ?? "$";
-  const { data: categories } = useQuery(categoriesQuery);
-  const { data: products } = useQuery(productsQuery);
-  const [term, setTerm] = useState("");
-
-  const groups = new Map<string, typeof categories>();
-  for (const c of categories ?? []) {
-    if (!c.is_active) continue;
-    const list = groups.get(c.group_label) ?? [];
-    list.push(c);
-    groups.set(c.group_label, list);
-  }
+  const links = [
+    { label: "Browse proxy inventory", to: "/" },
+    { label: "Order tracking", to: "/order-tracking" },
+    { label: "Payment & delivery", to: "/payment-and-delivery" },
+    { label: "How delivery works", to: "/delivery-method" },
+    { label: "Delivery time", to: "/delivery-time" },
+    { label: "Setup & access", to: "/shipping-and-packaging" },
+    { label: "About us", to: "/about" },
+    { label: "Contact support", to: "/contact" },
+  ] as const;
 
   return (
     <aside className="w-full lg:w-72 shrink-0 space-y-8 text-sm">
       <section>
         <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase border-b border-border pb-2">
-          Search products
+          Store links
         </h3>
-        <form
-          className="mt-3 flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/", search: { q: term || undefined } });
-          }}
-        >
-          <input
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            placeholder={settings.search_placeholder ?? "Search…"}
-            aria-label="Search products"
-            className="flex-1 min-w-0 px-3 py-1.5 border border-border rounded bg-card outline-none"
-          />
-          <button className="px-4 py-1.5 bg-primary text-primary-foreground rounded text-xs font-semibold">
-            Search
-          </button>
-        </form>
-      </section>
-
-      <section>
-        <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase border-b border-border pb-2">
-          RDP categories
-        </h3>
-        <div className="mt-3 space-y-4">
-          {[...groups.entries()].map(([group, list]) => (
-            <div key={group}>
-              <p className="text-primary font-semibold">{group}</p>
-              <ul className="mt-1 space-y-1">
-                {(list ?? []).map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      to="/"
-                      search={{ category: c.slug }}
-                      className="block pl-3 py-1 border-b border-border/60 text-foreground/75 hover:text-primary"
-                    >
-                      {c.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        <ul className="mt-3 space-y-1">
+          {links.map((l) => (
+            <li key={l.to}>
+              <Link
+                to={l.to}
+                className="block pl-3 py-1 border-b border-border/60 text-foreground/75 hover:text-primary"
+              >
+                {l.label}
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <section>
         <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase border-b border-border pb-2">
-          Popular plans
+          Quick help
         </h3>
-        <ul className="mt-3 space-y-3">
-          {(products ?? [])
-            .filter((p) => p.is_active)
-            .slice(0, 5)
-            .map((p) => (
-              <li key={p.id}>
-                <Link to="/product/$slug" params={{ slug: p.slug }} className="flex gap-3 group">
-                  <ProductImage src={p.image_url} name={p.name} className="block h-12 w-12 shrink-0 rounded" />
-                  <span className="min-w-0">
-                    <span className="block text-primary font-semibold text-[13px] leading-tight group-hover:underline">
-                      {p.name}
-                    </span>
-                    <span className="block text-xs text-muted-foreground mt-0.5">{priceRange(p, symbol)}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-        </ul>
+        <div className="mt-3 space-y-2 text-xs text-muted-foreground">
+          <p className="flex items-start gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <span>Crypto-only checkout — Bitcoin and Monero. No cards or accounts.</span>
+          </p>
+          <p className="flex items-start gap-2">
+            <Globe2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <span>Every proxy is a private IP rented for a full 24 hours.</span>
+          </p>
+        </div>
       </section>
     </aside>
   );

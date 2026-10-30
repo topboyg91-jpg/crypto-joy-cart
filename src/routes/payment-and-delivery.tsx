@@ -59,16 +59,16 @@ function PaymentAndDeliveryDefault() {
       </InfoCard>
       <InfoCard title="How delivery works">
         <p>
-          Orders are priced and shipped by weight in grams. Once payment confirms, the parcel is packed and dispatched
-          — see{" "}
-          <Link to="/shipping-and-packaging" className="text-primary hover:underline">
-            shipping and packaging
+          Every proxy is delivered digitally. Once your payment confirms on-chain, the proxy IP, port and login details
+          are sent to the email address on the order — typically within minutes. See{" "}
+          <Link to="/delivery-method" className="text-primary hover:underline">
+            how delivery works
           </Link>{" "}
-          for the exact process and{" "}
+          for the process and{" "}
           <Link to="/delivery-time" className="text-primary hover:underline">
             delivery time
           </Link>{" "}
-          for regional estimates.
+          for how fast payments confirm.
         </p>
       </InfoCard>
       <InfoCard title="Refunds">

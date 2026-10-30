@@ -6,13 +6,13 @@ import { contentPagesQuery } from "@/lib/store";
 export const Route = createFileRoute("/delivery-time")({
   head: () => ({
     meta: [
-      { title: "Delivery Time — worldwide shipping estimates" },
+      { title: "Delivery time — how fast your proxy arrives" },
       {
         name: "description",
-        content: "Delivery estimates per region, tracking rules and the exact address format we need for parcels.",
+        content: "How long proxy delivery takes after your crypto payment confirms, and how to track your order.",
       },
-      { property: "og:title", content: "Delivery Time" },
-      { property: "og:description", content: "Regional delivery estimates and address formatting." },
+      { property: "og:title", content: "Delivery time" },
+      { property: "og:description", content: "Delivery estimates after payment confirms." },
           { property: "og:url", content: "https://www.deepshop.space/delivery-time" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/delivery-time" }],
