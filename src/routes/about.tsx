@@ -1,17 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { InfoCard, InfoPage, useSettings } from "@/components/site-chrome";
 import { EditablePage } from "@/components/editable-page";
-import { categoriesQuery } from "@/lib/store";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About us — Gramory specialty coffee, tea & spice" },
-      { name: "description", content: "A small team roasting, blending and shipping specialty coffee, tea and spices worldwide, with crypto checkout." },
+      { title: "About us — DeepProxy private 24-hour proxies" },
+      { name: "description", content: "Who we are and how the 24-hour proxy store works: locations, crypto checkout and instant delivery." },
       { property: "og:title", content: "About us" },
       { property: "og:description", content: "Who we are and how the store works." },
-          { property: "og:url", content: "https://www.deepshop.space/about" },
+      { property: "og:url", content: "https://www.deepshop.space/about" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/about" }],
   }),
@@ -28,22 +26,21 @@ function AboutPage() {
 
 function AboutDefault() {
   const settings = useSettings();
-  const { data: categories } = useQuery(categoriesQuery);
-  const groups = [...new Set((categories ?? []).map((c) => c.group_label))];
 
   return (
-    <InfoPage title="About us" lead="Straightforward ordering, careful packing, worldwide reach.">
+    <InfoPage title="About us" lead="Private 24-hour proxies with straightforward crypto checkout.">
       <InfoCard title="What we do">
         <p>
-          {settings.store_name ?? "We"} ships worldwide from stock held in the United States and Western Europe. Every
-          product is priced and sold by weight in grams, so you order exactly the amount you need.
+          {settings.store_name ?? "We"} rents private residential, datacenter and mobile proxies targeted by country,
+          state and city — for fixed 24-hour windows. No subscriptions and no rotating pools: the IP you buy is yours
+          alone for the full 24 hours.
         </p>
       </InfoCard>
-      <InfoCard title="Our catalogue">
+      <InfoCard title="Our inventory">
         <ul className="list-disc pl-5 space-y-1">
-          {groups.map((g) => (
-            <li key={g}>{g}</li>
-          ))}
+          <li>Residential and mobile IPs across the United States, Europe and Asia</li>
+          <li>Datacenter proxies for high-bandwidth work</li>
+          <li>Every slot is single-use and private for the whole 24 hours</li>
         </ul>
       </InfoCard>
       <InfoCard title="Support">

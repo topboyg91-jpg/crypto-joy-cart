@@ -1,17 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { InfoCard, InfoPage } from "@/components/site-chrome";
 import { EditablePage } from "@/components/editable-page";
-import { shippingOptionsQuery, money } from "@/lib/store";
 
 export const Route = createFileRoute("/delivery-method")({
   head: () => ({
     meta: [
-      { title: "Delivery Method — shipping options" },
-      { name: "description", content: "Standard and express delivery options, how parcels travel and what tracking you get." },
-      { property: "og:title", content: "Delivery Method" },
-      { property: "og:description", content: "Standard and express shipping options for every order." },
-          { property: "og:url", content: "https://www.deepshop.space/delivery-method" },
+      { title: "How delivery works — instant proxy delivery" },
+      { name: "description", content: "Proxy orders are delivered digitally: what happens after your crypto payment confirms and where your connection details arrive." },
+      { property: "og:title", content: "How delivery works" },
+      { property: "og:description", content: "Digital delivery — nothing is shipped." },
+      { property: "og:url", content: "https://www.deepshop.space/delivery-method" },
     ],
     links: [{ rel: "canonical", href: "https://www.deepshop.space/delivery-method" }],
   }),
@@ -20,37 +18,35 @@ export const Route = createFileRoute("/delivery-method")({
 
 function DeliveryMethodPage() {
   return (
-    <EditablePage slug="delivery-method" title="Delivery method">
+    <EditablePage slug="delivery-method" title="How delivery works">
       <DeliveryMethodDefault />
     </EditablePage>
   );
 }
 
 function DeliveryMethodDefault() {
-  const { data: options } = useQuery(shippingOptionsQuery);
-
   return (
-    <InfoPage title="Delivery method" lead="Pick a shipping speed at checkout.">
-      <InfoCard title="Available options">
-        <ul className="list-disc pl-5 space-y-1">
-          {(options ?? []).map((o) => (
-            <li key={o.id}>
-              <span className="font-semibold text-foreground">{o.label}</span> — {o.description || "Standard handling"}
-              {Number(o.price) > 0 ? ` (${money(Number(o.price))})` : " (free)"}
-            </li>
-          ))}
-        </ul>
-      </InfoCard>
-      <InfoCard title="Tracking">
+    <InfoPage title="How delivery works" lead="Digital delivery — nothing is shipped.">
+      <InfoCard title="What happens after payment">
         <p>
-          International parcel orders get tracking if an email address is supplied during the order. Tracking codes are
-          emailed as soon as the parcel is scanned by the carrier.
+          When your crypto payment confirms on-chain, the proxy you ordered is reserved for you for the next 24 hours.
+          The connection details — IP address, port, protocol, username and password — are then sent to the email
+          address on the order, typically within minutes.
         </p>
       </InfoCard>
-      <InfoCard title="Address accuracy">
+      <InfoCard title="Where your details arrive">
         <p>
-          Use the address format shown on the delivery time page. Incorrect or incomplete addresses are the single most
-          common cause of a failed delivery, and there are no reships in case of seizure.
+          Delivery goes to the email address you enter at checkout. You can also follow the status at any time on the{" "}
+          <Link to="/order-tracking" className="text-primary hover:underline">
+            order tracking
+          </Link>{" "}
+          page with your order number.
+        </p>
+      </InfoCard>
+      <InfoCard title="Problems connecting">
+        <p>
+          If the proxy does not connect within the first hour, contact support with your order number and we will
+          replace the IP or refund the order.
         </p>
       </InfoCard>
     </InfoPage>
